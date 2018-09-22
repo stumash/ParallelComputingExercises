@@ -5,7 +5,7 @@ then
     mkdir "build"
 fi
 
-javac ca/mcgill/ecse420/a1/MatrixMultiplication.java
+javac ca/mcgill/ecse420/a1/MatrixMultiplication.java -d build
 
 cd build
 
