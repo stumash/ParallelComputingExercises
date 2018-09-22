@@ -11,9 +11,16 @@ public class MatrixMultiplication {
     public static void main(String[] args) {
 
         // Generate two random matrices, same size
-        double[][] a = generateRandomMatrix(MATRIX_SIZE, MATRIX_SIZE);
-        double[][] b = generateRandomMatrix(MATRIX_SIZE, MATRIX_SIZE);
-        sequentialMultiplyMatrix(a, b);
+        //double[][] a = generateRandomMatrix(MATRIX_SIZE, MATRIX_SIZE);
+        //double[][] b = generateRandomMatrix(MATRIX_SIZE, MATRIX_SIZE);
+        //sequentialMultiplyMatrix(a, b);
+
+        double[][] A = new double[][] {{1,0},{0,1}};
+        double[][] B = new double[][] {{1,0},{0,1}};
+        double[][] C = sequentialMultiplyMatrix(A, B);
+        printMatrix(C);
+
+
         //parallelMultiplyMatrix(a, b);
     }
 
@@ -27,28 +34,31 @@ public class MatrixMultiplication {
      * @pre a and b are nxn square matrices
      * */
     public static double[][] sequentialMultiplyMatrix(double[][] a, double[][] b) {
-        double[][] c = new double[MATRIX_SIZE][MATRIX_SIZE]; // a . b = c
+        int n = a.length; // assume a.length == b.length
+        double[][] c = new double[n][n]; // a . b = c
 
         // for each column of b
-        for (int bj = 0; bj < MATRIX_SIZE; bj++) {
+        for (int bj = 0; bj < n; bj++) {
 
             // get the column from b
-            double[] bCol = double[MATRIX_SIZE];
-            for (int bi = 0; bi < MATRIX_SIZE; bi++) {
+            double[] bCol = new double[n];
+            for (int bi = 0; bi < n; bi++) {
                 bCol[bi] = b[bi][bj];
             }
 
             // for each row of a
-            for (int ai = 0; ai < MATRIX_SIZE; ai++) {
+            for (int ai = 0; ai < n; ai++) {
 
                 // do dot(a row, b column)
-                for (int aj = 0; aj < MATRIX_SIZE; aj++) {
+                for (int aj = 0; aj < n; aj++) {
 
                     // to get each value in a cell of c
                     c[ai][bj] += a[ai][aj]+bCol[aj];
                 }
             }
         }
+
+        return c;
     }
 
     /**
@@ -59,7 +69,7 @@ public class MatrixMultiplication {
      * @return the result of the multiplication
      * */
     public static double[][] parallelMultiplyMatrix(double[][] a, double[][] b) {
-
+        return new double[][] {{1,2},{3,4}};
     }
 
     /**
@@ -78,4 +88,19 @@ public class MatrixMultiplication {
         return matrix;
     }
 
+    /**
+     * Print matrix
+     */
+    public static void printMatrix(double[][] M) {
+        if (M.length == 0 || M[0].length == 0) return;
+
+        for (double[] row : M) {
+            System.out.print(row[0]);
+            for (int j = 1; j < row.length; j++) {
+                System.out.print(" " + row[j]);
+            }
+            System.out.println();
+        }
+        System.out.println();
+    }
 }
