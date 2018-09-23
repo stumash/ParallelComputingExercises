@@ -53,7 +53,7 @@ public class MatrixMultiplication {
                 for (int aj = 0; aj < n; aj++) {
 
                     // to get each value in a cell of c
-                    c[ai][bj] += a[ai][aj]+bCol[aj];
+                    c[ai][bj] += a[ai][aj]*bCol[aj];
                 }
             }
         }
