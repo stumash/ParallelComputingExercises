@@ -5,8 +5,8 @@ then
     mkdir "build"
 fi
 
-javac ca/mcgill/ecse420/a1/DiningPhilosphers.java -d build
+javac ca/mcgill/ecse420/a1/DiningPhilosophers.java -d build
 
 cd build
 
-java ca.mcgill.ecse420.a1.DiningPhilosphers
+java ca.mcgill.ecse420.a1.DiningPhilosophers
