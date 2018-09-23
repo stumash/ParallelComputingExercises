@@ -9,18 +9,13 @@ public class MatrixMultiplication {
     private static final int MATRIX_SIZE = 2000;
 
     public static void main(String[] args) {
+        //testSequentialMatrixMultiply();
+        //testParallelMatrixMultiply();
 
         // Generate two random matrices, same size
-        //double[][] a = generateRandomMatrix(MATRIX_SIZE, MATRIX_SIZE);
-        //double[][] b = generateRandomMatrix(MATRIX_SIZE, MATRIX_SIZE);
-        //sequentialMultiplyMatrix(a, b);
-
-        double[][] A = new double[][] {{1,0},{0,1}};
-        double[][] B = new double[][] {{1,0},{0,1}};
-        double[][] C = sequentialMultiplyMatrix(A, B);
-        printMatrix(C);
-
-
+        double[][] a = generateRandomMatrix(MATRIX_SIZE, MATRIX_SIZE);
+        double[][] b = generateRandomMatrix(MATRIX_SIZE, MATRIX_SIZE);
+        sequentialMultiplyMatrix(a, b);
         //parallelMultiplyMatrix(a, b);
     }
 
@@ -49,7 +44,7 @@ public class MatrixMultiplication {
             // for each row of a
             for (int ai = 0; ai < n; ai++) {
 
-                // do dot(a row, b column)
+                // dot_product(a row, b column)
                 for (int aj = 0; aj < n; aj++) {
 
                     // to get each value in a cell of c
@@ -89,7 +84,7 @@ public class MatrixMultiplication {
     }
 
     /**
-     * Print matrix
+     * Print a matrix. Useful for testing.
      */
     public static void printMatrix(double[][] M) {
         if (M.length == 0 || M[0].length == 0) return;
@@ -102,5 +97,29 @@ public class MatrixMultiplication {
             System.out.println();
         }
         System.out.println();
+    }
+
+    /**
+     * Test the static method sequentialMatrixMultiply(a,b).
+     *
+     * Multiplies two 2x2 identity matrices and prints the results.
+     */
+    public static void testSequentialMatrixMultiply() {
+        double[][] A = new double[][] {{1,0},{0,1}};
+        double[][] B = new double[][] {{1,0},{0,1}};
+        double[][] C = sequentialMultiplyMatrix(A, B);
+        printMatrix(C);
+    }
+
+    /**
+     * Test the static method parallelMatrixMultiply(a,b).
+     *
+     * Multiplies two 2x2 identity matrices and prints the results.
+     */
+    public static void testParallelMatrixMultiply() {
+        double[][] A = new double[][] {{1,0},{0,1}};
+        double[][] B = new double[][] {{1,0},{0,1}};
+        double[][] C = parallelMultiplyMatrix(A, B);
+        printMatrix(C);
     }
 }
