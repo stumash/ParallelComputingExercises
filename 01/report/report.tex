@@ -21,8 +21,11 @@
 \setlength{\jot}{10pt}
 
 \begin{document}
+
 \begin{titlepage}
     \maketitle
+    \thispagestyle{empty}
+    \setcounter{page}{0}
 \end{titlepage}
 
 \section*{Question 2}
@@ -46,9 +49,9 @@ The solution to resolve deadlock is to remove the above conditions by employing 
     \item Prevention
         \begin{enumerate}[label=\arabic*.]
             \item Mutual exclusion: In general, this condition cannot be disallowed.
-            \item Hold-and-wait: The hold and-wait condition can be prevented by requiring that a process request all its required resources at one time, and blocking the process until all requests can be granted simultaneously. 
-            \item No preemption: One solution is that if a process holding certain resources is denied a further request, that process must release its unused resources and request them again, together with the additional resource. 
-            \item Circular Wait: The circular wait condition can be prevented by defining a global ordering of resource types. If a process has been allocated resources of type R, then it may subsequently request only those resources of types following R in the ordering. 
+            \item Hold-and-wait: The hold and-wait condition can be prevented by requiring that a process request all its required resources at one time, and blocking the process until all requests can be granted simultaneously.
+            \item No preemption: One solution is that if a process holding certain resources is denied a further request, that process must release its unused resources and request them again, together with the additional resource.
+            \item Circular Wait: The circular wait condition can be prevented by defining a global ordering of resource types. If a process has been allocated resources of type R, then it may subsequently request only those resources of types following R in the ordering.
         \end{enumerate}
     \item Detection and reallocation of resources
         \begin{itemize}
