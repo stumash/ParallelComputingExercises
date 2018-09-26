@@ -3,7 +3,6 @@ package ca.mcgill.ecse420.a1;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class DiningPhilosophers {
@@ -81,6 +80,7 @@ public class DiningPhilosophers {
             while(true) {
               // Think for a while
               think();
+              
               if (leftChopStick.pickUp(this, "left")) {
                 if (rightChopStick.pickUp(this, "right")) {
                   eat();
@@ -88,6 +88,7 @@ public class DiningPhilosophers {
                   leftChopStick.putDown(this, "left");
                 }
               }
+              
             }     
           }catch (Exception e) {
             // Catch the exception outside the loop.
@@ -101,8 +102,13 @@ public class DiningPhilosophers {
         }
         //The philosopher is spending a random period to eat
         private void eat() throws InterruptedException {
-          System.out.println("Philosopher - " +id +" is eating");
-          Thread.sleep(new Random().nextInt(500));
+          try {
+            System.out.println("Philosopher - " +id +" is eating");
+            Thread.sleep(new Random().nextInt(500));
+          }
+          catch (Exception e) {
+            System.out.println(e);
+          }
         }
 
     }
