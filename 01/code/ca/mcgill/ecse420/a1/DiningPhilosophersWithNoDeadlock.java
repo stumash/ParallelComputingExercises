@@ -8,7 +8,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class DiningPhilosophersWithNoDeadlock {
     
     public static void main(String[] args) {
-      int numberOfPhilosophers = 5;
+      int numberOfPhilosophers = 10;
       Philosopher[] philosophers = new Philosopher[numberOfPhilosophers];
       Object[] chopsticks = new Object[numberOfPhilosophers];
       
@@ -46,15 +46,15 @@ public class DiningPhilosophersWithNoDeadlock {
       public boolean pickUp(Philosopher philosopher, String where) throws InterruptedException {
 //        TryLock() acquires the lock only if it is free at the time of invocation.
         if (lock.tryLock()) {
-          System.out.println("Philosopher - "+ philosopher.id + " picked up " + where + " Chopstick " + id);
+//          System.out.println("Philosopher - "+ philosopher.id + " picked up " + where + " Chopstick " + id);
           return true;
         }
-        System.out.println("Philosopher - "+ philosopher.id + " COULD NOT picked up " + where + " Chopstick " + id);
+//        System.out.println("Philosopher - "+ philosopher.id + " COULD NOT picked up " + where + " Chopstick " + id);
         return false;
       }
       public void putDown(Philosopher philosopher, String name) {
         lock.unlock();
-        System.out.println("Philosopher - "+ philosopher.id + " put down " + name + " Chopstick " + id);
+//        System.out.println("Philosopher - "+ philosopher.id + " put down " + name + " Chopstick " + id);
       }
     }
     
@@ -78,24 +78,40 @@ public class DiningPhilosophersWithNoDeadlock {
         public void run() {
           try {
             while(true) {
+              if((this.id & 1) == 0 ) {
+//              Philosopher with an even id
+               // Think for a while
+               think();
+               if (rightChopStick.pickUp(this, "right")) {
+                 if (leftChopStick.pickUp(this, "left")) {
+                   eat();
+                   leftChopStick.putDown(this, "left");
+                 }
+//                Resource allocation, drop the rChopStick even if philosopher was not able to eat giving the possibility for others to pick it up
+                 rightChopStick.putDown(this, "right");
+                 }
+               }else{
+//              Philosopher with an old id
               // Think for a while
               think();
               if (leftChopStick.pickUp(this, "left")) {
                 if (rightChopStick.pickUp(this, "right")) {
                   eat();
                   rightChopStick.putDown(this, "right");
-                  leftChopStick.putDown(this, "left");
+                }
+//                Resource allocation, drop the rChopStick even if philosopher was not able to eat giving the possibility for others to pick it up
+                leftChopStick.putDown(this, "left");
                 }
               }
-            }     
-          }catch (Exception e) {
+              }
+            }catch (Exception e) {
             // Catch the exception outside the loop.
             e.printStackTrace();
           } 
         }
         //The philosopher is spending a random period to think
         private void think() throws InterruptedException {
-          System.out.println("Philosopher - " +id +" is thinking");
+//          System.out.println("Philosopher - " +id +" is thinking");
           Thread.sleep(new Random().nextInt(500));
         }
         //The philosopher is spending a random period to eat
