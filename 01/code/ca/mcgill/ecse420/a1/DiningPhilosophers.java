@@ -45,16 +45,14 @@ public class DiningPhilosophers {
       
       //return true if chopstick is free and false otherwise
       public boolean pickUp(Philosopher philosopher, String where) throws InterruptedException {
-        if (lock.tryLock(10, TimeUnit.MILLISECONDS)) {
+//        TryLock() acquires the lock only if it is free at the time of invocation.
+        if (lock.tryLock()) {
           System.out.println("Philosopher - "+ philosopher.id + " picked up " + where + " Chopstick " + id);
           return true;
         }
+        System.out.println("Philosopher - "+ philosopher.id + " COULD NOT picked up " + where + " Chopstick " + id);
         return false;
       }
-//      @Override
-//      public String toString() {
-//        return "Chopstick-" + id;
-//      }
       public void putDown(Philosopher philosopher, String name) {
         lock.unlock();
         System.out.println("Philosopher - "+ philosopher.id + " put down " + name + " Chopstick " + id);
@@ -87,15 +85,14 @@ public class DiningPhilosophers {
                 if (rightChopStick.pickUp(this, "right")) {
                   eat();
                   rightChopStick.putDown(this, "right");
+                  leftChopStick.putDown(this, "left");
                 }
-                leftChopStick.putDown(this, "left");
               }
             }     
           }catch (Exception e) {
             // Catch the exception outside the loop.
             e.printStackTrace();
-          }
-            
+          } 
         }
         //The philosopher is spending a random period to think
         private void think() throws InterruptedException {
