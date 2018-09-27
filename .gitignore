@@ -1,2 +1,9 @@
+# java-generated
 build
 *.class
+
+# latex-generated
+*.aux
+*.dvi
+*.log
+*.synctex.gz
