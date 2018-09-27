@@ -61,15 +61,21 @@ The solution to resolve deadlock is to remove the above conditions by employing 
 \pagebreak
 
 \section*{Question 3}
+
+Deadlock and Starvation in the Dining Philosophers Problem.
+
 \subsection*{3.2}
 
-We have implemented these solution to address deadlock:
-\begin{itemize}
-	\item A philosopher takes chopsticks only if both chopsticks were there. If all philosophers are hungry simultaneously, then only two philosophers who can eat, because philosophers took two chopsticks at the
+To avoid deadlock in the Dining Philosophers Problem, we had our philosophers follow two rules:
+
+\begin{enumerate}
+	\item A philosopher takes his two chopsticks only if both chopsticks are not in use. Even if all philosophers are hungry simultaneously, only two philosophers can eat, because philosophers must take both chopsticks at once.
 same time.
-	\item Philosopher on odd numbered take the first left new chopsticks right, while the even-numbered hilosophers take the right chopstick first and chopsticks left. If all philosophers hunger simultaneously, making way for asymmetric solution will prevent all philosophers take the left chopstick simultaneously so that a deadlock condition can be avoided.
-\end{itemize}
+	\item Philosophers on odd numbered take the first left new chopsticks right, while the even-numbered hilosophers take the right chopstick first and chopsticks left. If all philosophers hunger simultaneously, making way for asymmetric solution will prevent all philosophers take the left chopstick simultaneously so that a deadlock condition can be avoided.
+\end{enumerate}
+
 \subsection*{3.3}
+
 \section*{Question 4}
 
 Amdahl's Law:

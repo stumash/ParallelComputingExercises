@@ -5,5 +5,7 @@ build
 # latex-generated
 *.aux
 *.dvi
+*.fls
 *.log
 *.synctex.gz
+*.fdb_latexmk
