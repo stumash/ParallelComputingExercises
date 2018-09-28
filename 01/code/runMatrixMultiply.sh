@@ -9,4 +9,4 @@ javac ca/mcgill/ecse420/a1/MatrixMultiplication.java -d build
 
 cd build
 
-java ca.mcgill.ecse420.a1.MatrixMultiplication
+java ca.mcgill.ecse420.a1.MatrixMultiplication "$@"

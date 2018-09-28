@@ -5,18 +5,47 @@ import java.util.concurrent.Executors;
 
 public class MatrixMultiplication {
 
-    private static final int NUMBER_THREADS = 1;
-    private static final int MATRIX_SIZE = 2000;
+    private static boolean PARALLELIZE = false;
+    private static int NUMBER_THREADS  = 1;
+    private static int MATRIX_SIZE     = 2000;
+
+    private static String helpMessage = "\n" +
+        "usage: java MatrixMultiplication [-s size] [-p parallelize[, -n numThreads]]\n" +
+        "\n" +
+        "    size,        int:     dimensions of all square matrices used in multiplication\n" +
+        "                          (defaults to 2000)\n" +
+        "    parallelize, boolean: if true do parallel matrix multiply else do sequential one\n" +
+        "                          (defaults to false)\n" +
+        "    numThreads,  int:     number of threads to use for parallel matrix multiply\n" +
+        "                          (can only supply this arg if parallelize is true)\n" +
+        "                          (defaults to 4)\n" +
+        "\n" +
+        "Examples:\n" +
+        "\n" +
+        "    java MatrixMultiplication -s 1000 -p true -n 8\n" +
+        "    java MatrixMultiplication -p true -n 8\n" +
+        "    java MatrixMultiplication -p true\n" +
+        "    java MatrixMultiplication -s 1000 -p true\n";
 
     public static void main(String[] args) {
-        //testSequentialMatrixMultiply();
-        //testParallelMatrixMultiply();
+        // sets values of PARALLELIZE, NUMBER_THREADS, and MATRIX_SIZE
+        if (!parseCommandLineArgs(args)) {
+            System.exit(1);
+        } 
 
         // Generate two random matrices, same size
-        double[][] a = generateRandomMatrix(MATRIX_SIZE, MATRIX_SIZE);
-        double[][] b = generateRandomMatrix(MATRIX_SIZE, MATRIX_SIZE);
-        sequentialMultiplyMatrix(a, b);
-        //parallelMultiplyMatrix(a, b);
+        //double[][] a = generateRandomMatrix(MATRIX_SIZE, MATRIX_SIZE);
+        //double[][] b = generateRandomMatrix(MATRIX_SIZE, MATRIX_SIZE);
+
+        //long startTime = System.currentTimeMillis();
+
+        //if (PARALLELIZE) {
+            //parallelMultiplyMatrix(a, b);
+        //} else {
+            //sequentialMultiplyMatrix(a, b);
+        //}
+
+        //System.out.println(System.currentTimeMillis - startTime);
     }
 
     /**
@@ -83,6 +112,78 @@ public class MatrixMultiplication {
         return matrix;
     }
 
+    private static boolean parseCommandLineArgs(String[] args) {
+        if (args.length % 2 != 0 || args.length > 6) {
+            System.out.println("ERROR: wrong number of args, expecting 2, 4, or 6");
+            System.out.println(helpMessage);
+            return false;
+        }
+
+        boolean matrixSizeIsSet  = false;
+        boolean parallelizeIsSet = false;
+        boolean numThreadsIsSet  = false;
+        for (int i = 0; i < args.length; i+=2) {
+            String flag = args[i];
+            if (!flag.equals("-s") && !flag.equals("-p") && !flag.equals("-n")) {
+                System.out.println("ERROR: bad syntax");
+                System.out.println(helpMessage);
+                return false;
+            }
+
+            String arg = args[i+1];
+            if (flag.equals("-s")) {
+                if (matrixSizeIsSet) {
+                    System.out.println("ERROR: cannot set size twice");
+                    System.out.println(helpMessage);
+                    return false;
+                }
+                try {
+                    MATRIX_SIZE = Integer.parseInt(arg);
+                    matrixSizeIsSet = true;
+                } catch(Exception e){
+                    System.out.println("ERROR: size must be an integer");
+                    System.out.println(helpMessage);
+                    return false;
+                }
+            } else if (flag.equals("-p")) {
+                if (parallelizeIsSet) {
+                    System.out.println("ERROR: cannot set parallelize twice");
+                    System.out.println(helpMessage);
+                    return false;
+                }
+                try {
+                    PARALLELIZE = Boolean.parseBoolean(arg);
+                    parallelizeIsSet = true;
+                } catch(Exception e) {
+                    System.out.println("ERROR: parallelize must be a boolean");
+                    System.out.println(helpMessage);
+                    return false;
+                }
+            } else if (flag.equals("-n")) {
+                if (numThreadsIsSet) {
+                    System.out.println("ERROR: cannot set numThreads twice");
+                    System.out.println(helpMessage);
+                    return false;
+                }
+                if (!parallelizeIsSet || (parallelizeIsSet && !PARALLELIZE)) {
+                    System.out.println("ERROR: '-p true' must be provided before '-n numThreads'");
+                    System.out.println(helpMessage);
+                    return false;
+                }
+                try {
+                    NUMBER_THREADS = Integer.parseInt(arg);
+                    numThreadsIsSet = true;
+                } catch(Exception e) {
+                    System.out.println("ERROR: numThreads must be an integer");
+                    System.out.println(helpMessage);
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
     /**
      * Print a matrix. Useful for testing.
      */
@@ -103,6 +204,7 @@ public class MatrixMultiplication {
      * Test the static method sequentialMatrixMultiply(a,b).
      *
      * Multiplies two 2x2 identity matrices and prints the results.
+     * Non-exhaustive tests.
      */
     public static void testSequentialMatrixMultiply() {
         double[][] A = new double[][] {{1,0},{0,1}};
@@ -115,6 +217,7 @@ public class MatrixMultiplication {
      * Test the static method parallelMatrixMultiply(a,b).
      *
      * Multiplies two 2x2 identity matrices and prints the results.
+     * Non-exhaustive tests.
      */
     public static void testParallelMatrixMultiply() {
         double[][] A = new double[][] {{1,0},{0,1}};
