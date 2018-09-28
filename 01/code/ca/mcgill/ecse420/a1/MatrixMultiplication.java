@@ -2,6 +2,11 @@ package ca.mcgill.ecse420.a1;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
+
+import java.util.List;
+import java.util.ArrayList;
 
 public class MatrixMultiplication {
 
@@ -14,7 +19,8 @@ public class MatrixMultiplication {
         "                          (defaults to false)\n" +
         "    numThreads,  int:     number of threads to use for parallel matrix multiply\n" +
         "                          (can only supply this arg if parallelize is true)\n" +
-        "                          (defaults to 4)\n" +
+        "                          (must be divisible by 2 and less than size)\n" +
+        "                          (defaults to 1)\n" +
         "\n" +
         "Examples:\n" +
         "\n" +
@@ -24,8 +30,8 @@ public class MatrixMultiplication {
         "    java MatrixMultiplication -s 1000 -p true\n";
 
     private static boolean PARALLELIZE = false;
-    private static int NUMBER_THREADS  = 1;
     private static int MATRIX_SIZE     = 2000;
+    private static int NUMBER_THREADS  = 1;
 
     public static void main(String[] args) {
         // sets values of PARALLELIZE, NUMBER_THREADS, and MATRIX_SIZE
@@ -45,7 +51,7 @@ public class MatrixMultiplication {
             sequentialMultiplyMatrix(a, b);
         }
 
-        System.out.println(System.currentTimeMillis - startTime);
+        System.out.println(System.currentTimeMillis() - startTime);
     }
 
     /**
@@ -98,7 +104,23 @@ public class MatrixMultiplication {
         int n = a.length; // assume a.length == b.length
         double[][] c = new double[n][n];
 
-        // TODO: parallel matrix multiplication algorithm
+        List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
+
+        // TODO: logic to divide mult into tasks based on NUMBER_THREADS
+        for (int i = 0; i < NUMBER_THREADS; i++) {
+            tasks.add(Executors.callable(() -> {
+                System.out.println(); // TODO: fill this crap in
+            }));
+        }
+
+        ExecutorService threadPool = Executors.newFixedThreadPool(NUMBER_THREADS);
+        try {
+            threadPool.invokeAll(tasks);
+            threadPool.awaitTermination(10, TimeUnit.MINUTES); // wait a really long time if needed
+        } catch(Exception e){
+            e.printStackTrace();
+            System.exit(1);
+        }
 
         return c;
     }
@@ -152,7 +174,8 @@ public class MatrixMultiplication {
                     System.out.println(helpMessage);
                     return false;
                 }
-            } else if (flag.equals("-p")) {
+            }
+            else if (flag.equals("-p")) {
                 if (parallelizeIsSet) {
                     System.out.println("ERROR: cannot set parallelize twice");
                     System.out.println(helpMessage);
@@ -166,7 +189,8 @@ public class MatrixMultiplication {
                     System.out.println(helpMessage);
                     return false;
                 }
-            } else if (flag.equals("-n")) {
+            }
+            else if (flag.equals("-n")) {
                 if (numThreadsIsSet) {
                     System.out.println("ERROR: cannot set numThreads twice");
                     System.out.println(helpMessage);
@@ -182,6 +206,16 @@ public class MatrixMultiplication {
                     numThreadsIsSet = true;
                 } catch(Exception e) {
                     System.out.println("ERROR: numThreads must be an integer");
+                    System.out.println(helpMessage);
+                    return false;
+                }
+                if (NUMBER_THREADS % 2 != 0) {
+                    System.out.println("ERROR: numThreads must be divisible by 2");
+                    System.out.println(helpMessage);
+                    return false;
+                }
+                if (NUMBER_THREADS > MATRIX_SIZE) {
+                    System.out.println("ERROR: numThreads must be less than size");
                     System.out.println(helpMessage);
                     return false;
                 }
