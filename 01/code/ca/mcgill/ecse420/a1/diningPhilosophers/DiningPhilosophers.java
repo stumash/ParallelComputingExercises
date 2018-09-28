@@ -1,4 +1,4 @@
-package ca.mcgill.ecse420.a1;
+package ca.mcgill.ecse420.a1.diningPhilosophers;
 
 import java.util.Random;
 import java.util.concurrent.ExecutorService;

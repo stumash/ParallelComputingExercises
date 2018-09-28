@@ -1,4 +1,4 @@
-package ca.mcgill.ecse420.a1;
+package ca.mcgill.ecse420.a1.matrixMultiplication;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
