@@ -5,11 +5,7 @@ import java.util.concurrent.Executors;
 
 public class MatrixMultiplication {
 
-    private static boolean PARALLELIZE = false;
-    private static int NUMBER_THREADS  = 1;
-    private static int MATRIX_SIZE     = 2000;
-
-    private static String helpMessage = "\n" +
+    private static final String helpMessage = "\n" +
         "usage: java MatrixMultiplication [-s size] [-p parallelize[, -n numThreads]]\n" +
         "\n" +
         "    size,        int:     dimensions of all square matrices used in multiplication\n" +
@@ -27,25 +23,29 @@ public class MatrixMultiplication {
         "    java MatrixMultiplication -p true\n" +
         "    java MatrixMultiplication -s 1000 -p true\n";
 
+    private static boolean PARALLELIZE = false;
+    private static int NUMBER_THREADS  = 1;
+    private static int MATRIX_SIZE     = 2000;
+
     public static void main(String[] args) {
         // sets values of PARALLELIZE, NUMBER_THREADS, and MATRIX_SIZE
         if (!parseCommandLineArgs(args)) {
             System.exit(1);
         } 
 
-        // Generate two random matrices, same size
-        //double[][] a = generateRandomMatrix(MATRIX_SIZE, MATRIX_SIZE);
-        //double[][] b = generateRandomMatrix(MATRIX_SIZE, MATRIX_SIZE);
+        // generate two random matrices, same size
+        double[][] a = generateRandomMatrix(MATRIX_SIZE, MATRIX_SIZE);
+        double[][] b = generateRandomMatrix(MATRIX_SIZE, MATRIX_SIZE);
 
-        //long startTime = System.currentTimeMillis();
+        long startTime = System.currentTimeMillis();
 
-        //if (PARALLELIZE) {
-            //parallelMultiplyMatrix(a, b);
-        //} else {
-            //sequentialMultiplyMatrix(a, b);
-        //}
+        if (PARALLELIZE) {
+            parallelMultiplyMatrix(a, b);
+        } else {
+            sequentialMultiplyMatrix(a, b);
+        }
 
-        //System.out.println(System.currentTimeMillis - startTime);
+        System.out.println(System.currentTimeMillis - startTime);
     }
 
     /**
@@ -91,9 +91,16 @@ public class MatrixMultiplication {
      * @param a is the first matrix
      * @param b is the second matrix
      * @return the result of the multiplication
+     *
+     * @pre a and b are nxn square matrices
      * */
     public static double[][] parallelMultiplyMatrix(double[][] a, double[][] b) {
-        return new double[][] {{1,2},{3,4}};
+        int n = a.length; // assume a.length == b.length
+        double[][] c = new double[n][n];
+
+        // TODO: parallel matrix multiplication algorithm
+
+        return c;
     }
 
     /**
