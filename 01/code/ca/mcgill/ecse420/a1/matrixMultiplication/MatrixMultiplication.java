@@ -19,7 +19,7 @@ public class MatrixMultiplication {
         "                          (defaults to false)\n" +
         "    numThreads,  int:     number of threads to use for parallel matrix multiply\n" +
         "                          (can only supply this arg if parallelize is true)\n" +
-        "                          (must be divisible by 2 and less than size)\n" +
+        "                          (must be divisible by 2 and less than size^2)\n" +
         "                          (defaults to 1)\n" +
         "\n" +
         "Examples:\n" +
@@ -37,7 +37,7 @@ public class MatrixMultiplication {
         // sets values of PARALLELIZE, NUMBER_THREADS, and MATRIX_SIZE
         if (!parseCommandLineArgs(args)) {
             System.exit(1);
-        } 
+        }
 
         // generate two random matrices, same size
         double[][] a = generateRandomMatrix(MATRIX_SIZE, MATRIX_SIZE);
@@ -104,10 +104,21 @@ public class MatrixMultiplication {
         int n = a.length; // assume a.length == b.length
         double[][] c = new double[n][n];
 
+        // each thread will compute some portion of the product matrix c. the column and row ranges
+        // of the portion are dependent on NUMBER_THREADS. specifically, NUMBER_THREADS determines
+        // how many times the n rows and n columns must be partitioned into portions, respectively.
+        int rowDivides = 0;
+        int colDivides = NUMBER_THREADS;
+        if (NUMBER_THREADS > n) {
+            colDivides = n;
+            rowDivides = n % NUMBER_THREADS;
+        }
+        // TODO: how to break up the portions given that we know colDivides and rowDivides?
+
         List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
 
         // TODO: logic to divide mult into tasks based on NUMBER_THREADS
-        for (int i = 0; i < NUMBER_THREADS; i++) {
+        for (int taskNum = 0; taskNum < NUMBER_THREADS; taskNum++) {
             tasks.add(Executors.callable(() -> {
                 System.out.println(); // TODO: fill this crap in
             }));
@@ -141,6 +152,13 @@ public class MatrixMultiplication {
         return matrix;
     }
 
+    /**
+     * Sets the values of MATRIX_SIZE, PARALLELIZE, NUMBER_THREADS if the -s, -p, and -n cli
+     * args are provided, respectively. Else, leaves those vars set to their defaults.
+     *
+     * @param args cli args
+     * @return true if cli args are parsed successfully, else false for bad cli args
+     */
     private static boolean parseCommandLineArgs(String[] args) {
         if (args.length % 2 != 0 || args.length > 6) {
             System.out.println("ERROR: wrong number of args, expecting 2, 4, or 6");
@@ -214,8 +232,8 @@ public class MatrixMultiplication {
                     System.out.println(helpMessage);
                     return false;
                 }
-                if (NUMBER_THREADS > MATRIX_SIZE) {
-                    System.out.println("ERROR: numThreads must be less than size");
+                if (NUMBER_THREADS > MATRIX_SIZE*MATRIX_SIZE) {
+                    System.out.println("ERROR: numThreads must be less than size^2");
                     System.out.println(helpMessage);
                     return false;
                 }
@@ -229,7 +247,8 @@ public class MatrixMultiplication {
      * Print a matrix. Useful for testing.
      */
     public static void printMatrix(double[][] M) {
-        if (M.length == 0 || M[0].length == 0) return;
+        if (M.length == 0 || M[0].length == 0)
+            return;
 
         for (double[] row : M) {
             System.out.print(row[0]);
