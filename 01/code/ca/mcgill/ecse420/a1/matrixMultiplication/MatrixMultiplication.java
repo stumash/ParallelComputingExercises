@@ -10,36 +10,32 @@ import java.util.ArrayList;
 
 public class MatrixMultiplication {
 
-    private static final String helpMessage = "\n" +
-        "usage: java MatrixMultiplication [-s size] [-p parallelize[, -n numThreads]]\n" +
-        "\n" +
-        "    size,        int:     dimensions of all square matrices used in multiplication\n" +
-        "                          (defaults to 2000)\n" +
-        "    parallelize, boolean: if true do parallel matrix multiply else do sequential one\n" +
-        "                          (defaults to false)\n" +
-        "    numThreads,  int:     number of threads to use for parallel matrix multiply\n" +
-        "                          (can only supply this arg if parallelize is true)\n" +
-        "                          (must be divisible by 2 and less than size^2)\n" +
-        "                          (defaults to 1)\n" +
-        "\n" +
-        "Examples:\n" +
-        "\n" +
-        "    java MatrixMultiplication -s 1000 -p true -n 8\n" +
-        "    java MatrixMultiplication -p true -n 8\n" +
-        "    java MatrixMultiplication -p true\n" +
-        "    java MatrixMultiplication -s 1000 -p true\n";
+    private static final String helpMessage = "\n"
+        + "usage: java MatrixMultiplication [-s size] [-p parallelize[, -n numThreads]]\n\n"
+        + "    size,        int:     dimensions of all square matrices used in multiplication\n"
+        + "                          (must be multiple of 100)\n"
+        + "                          (defaults to 2000)\n"
+        + "    parallelize, boolean: if true do parallel matrix multiply else do sequential one\n"
+        + "                          (defaults to false)\n"
+        + "    numThreads,  int:     number of threads to use for parallel matrix multiply\n"
+        + "                          (can only supply this arg if parallelize is true)\n"
+        + "                          (must be divisible by 2 and less than size^2)\n"
+        + "                          (defaults to 1)\n\n"
+        + "Examples:\n\n"
+        + "    java MatrixMultiplication -s 1000 -p true -n 8\n"
+        + "    java MatrixMultiplication -p true -n 8\n"
+        + "    java MatrixMultiplication -p true\n"
+        + "    java MatrixMultiplication -s 1000 -p true\n";
 
     private static boolean PARALLELIZE = false;
     private static int MATRIX_SIZE     = 2000;
     private static int NUMBER_THREADS  = 1;
 
     public static void main(String[] args) {
-        // sets values of PARALLELIZE, NUMBER_THREADS, and MATRIX_SIZE
-        if (!parseCommandLineArgs(args)) {
+        if (!parseCommandLineArgs(args)) { // set PARALLELIZE,MATRIX_SIZE,NUMBER_THREADS
             System.exit(1);
         }
 
-        // generate two random matrices, same size
         double[][] a = generateRandomMatrix(MATRIX_SIZE, MATRIX_SIZE);
         double[][] b = generateRandomMatrix(MATRIX_SIZE, MATRIX_SIZE);
 
@@ -102,23 +98,34 @@ public class MatrixMultiplication {
      * */
     public static double[][] parallelMultiplyMatrix(double[][] a, double[][] b) {
         int n = a.length; // assume a.length == b.length
-        double[][] c = new double[n][n];
+        double[][] c = new double[n][n]; // a . b = c
 
-        // each thread will compute some portion of the product matrix c. the column and row ranges
-        // of the portion are dependent on NUMBER_THREADS. specifically, NUMBER_THREADS determines
-        // how many times the n rows and n columns must be partitioned into portions, respectively.
-        int rowDivides = 0;
-        int colDivides = NUMBER_THREADS;
+        // Each thread will compute some portion of the product matrix c.
+        // The column and row ranges of that portion are dependent on NUMBER_THREADS.
+
+        int numColSplits = NUMBER_THREADS;
+        int numRowSplits = 0;
         if (NUMBER_THREADS > n) {
-            colDivides = n;
-            rowDivides = n % NUMBER_THREADS;
+            numColSplits = n;
+            numRowSplits = n % NUMBER_THREADS;
         }
-        // TODO: how to break up the portions given that we know colDivides and rowDivides?
+
+        double colsPerThread      = n / (double)numColSplits;
+        int lowColsPerThread      = (int)colsPerThread;
+        int highColsPerThread     = (int)Math.ceil(colsPerThread);
+        double colsRatioHighToLow = colsPerThread % 1;
+
+        double rowsPerThread      = n / (double)numRowSplits;
+        int lowRowsPerThread      = (int)rowsPerThread;
+        int highRowsPerThread     = (int)Math.ceil(rowsPerThread);
+        double rowsRatioHighToLow = rowsPerThread % 1;
+
+        // TODO
 
         List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
 
         // TODO: logic to divide mult into tasks based on NUMBER_THREADS
-        for (int taskNum = 0; taskNum < NUMBER_THREADS; taskNum++) {
+        for (; ; ) {
             tasks.add(Executors.callable(() -> {
                 System.out.println(); // TODO: fill this crap in
             }));
@@ -189,6 +196,11 @@ public class MatrixMultiplication {
                     matrixSizeIsSet = true;
                 } catch(Exception e){
                     System.out.println("ERROR: size must be an integer");
+                    System.out.println(helpMessage);
+                    return false;
+                }
+                if (MATRIX_SIZE % 100 != 0) {
+                    System.out.println("ERROR: size must be a multiple of 100");
                     System.out.println(helpMessage);
                     return false;
                 }
