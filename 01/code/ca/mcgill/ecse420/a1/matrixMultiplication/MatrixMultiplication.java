@@ -19,7 +19,7 @@ public class MatrixMultiplication {
         + "                          (defaults to false)\n"
         + "    numThreads,  int:     number of threads to use for parallel matrix multiply\n"
         + "                          (can only supply this arg if parallelize is true)\n"
-        + "                          (must be divisible by 2 and less than size^2)\n"
+        + "                          (must be less than size)\n"
         + "                          (defaults to 1)\n\n"
         + "Examples:\n\n"
         + "    java MatrixMultiplication -s 1000 -p true -n 8\n"
@@ -100,41 +100,45 @@ public class MatrixMultiplication {
         int n = a.length; // assume a.length == b.length
         double[][] c = new double[n][n]; // a . b = c
 
-        // Each thread will compute some portion of the product matrix c.
-        // The column and row ranges of that portion are dependent on NUMBER_THREADS.
+        // Each thread will compute 1 or more columns of product matrix c.
+        // The column ranges given to each thread are dependent on NUMBER_THREADS.
 
-        int numColSplits = NUMBER_THREADS;
-        int numRowSplits = 0;
-        if (NUMBER_THREADS > n) {
-            numColSplits = n;
-            numRowSplits = n % NUMBER_THREADS;
-        }
-
-        double colsPerThread      = n / (double)numColSplits;
-        int lowColsPerThread      = (int)colsPerThread;
+        double colsPerThread      = n / (double)NUMBER_THREADS;
+        int lowColsPerThread      = (int)Math.floor(colsPerThread);
         int highColsPerThread     = (int)Math.ceil(colsPerThread);
-        double colsRatioHighToLow = colsPerThread % 1;
+        double fracColsPerThreadHighToLow = colsPerThread % 1;
 
-        double rowsPerThread      = n / (double)numRowSplits;
-        int lowRowsPerThread      = (int)rowsPerThread;
-        int highRowsPerThread     = (int)Math.ceil(rowsPerThread);
-        double rowsRatioHighToLow = rowsPerThread % 1;
+        int numThreadsHighColsPerThread = (int)(fracColsPerThreadHighToLow * NUMBER_THREADS);
+        int numThreadsLowColsPerThread  = NUMBER_THREADS-1-numThreadsHighColsPerThread;
 
-        // TODO
+        // now that we figured out how many threads will get how many columns, we can
+        // create all the PartialMatrixMultiplication tasks and add them to the Executor
 
         List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
 
-        // TODO: logic to divide mult into tasks based on NUMBER_THREADS
-        for (; ; ) {
-            tasks.add(Executors.callable(() -> {
-                System.out.println(); // TODO: fill this crap in
-            }));
+        int colRangeStart = 0;
+        int colRangeEnd = 0;
+        for (int threadNum = 0; threadNum < NUMBER_THREADS; threadNum++) {
+            if (threadNum < numThreadsHighColsPerThread) {
+                colRangeEnd = colRangeStart + highColsPerThread;
+            } else if (threadNum < numThreadsHighColsPerThread + numThreadsLowColsPerThread) {
+                colRangeEnd = colRangeStart + lowColsPerThread;
+            } else {
+                colRangeEnd = n;
+            }
+
+            PartialMatrixMultiplication p =
+                new PartialMatrixMultiplication(a,b,c, colRangeStart,colRangeEnd);
+            colRangeStart = colRangeEnd;
+
+            tasks.add(Executors.callable(p));
         }
 
         ExecutorService threadPool = Executors.newFixedThreadPool(NUMBER_THREADS);
         try {
             threadPool.invokeAll(tasks);
             threadPool.awaitTermination(10, TimeUnit.MINUTES); // wait a really long time if needed
+            threadPool.shutdown();
         } catch(Exception e){
             e.printStackTrace();
             System.exit(1);
@@ -239,13 +243,8 @@ public class MatrixMultiplication {
                     System.out.println(helpMessage);
                     return false;
                 }
-                if (NUMBER_THREADS % 2 != 0) {
-                    System.out.println("ERROR: numThreads must be divisible by 2");
-                    System.out.println(helpMessage);
-                    return false;
-                }
-                if (NUMBER_THREADS > MATRIX_SIZE*MATRIX_SIZE) {
-                    System.out.println("ERROR: numThreads must be less than size^2");
+                if (NUMBER_THREADS > MATRIX_SIZE) {
+                    System.out.println("ERROR: numThreads must be less than size");
                     System.out.println(helpMessage);
                     return false;
                 }
