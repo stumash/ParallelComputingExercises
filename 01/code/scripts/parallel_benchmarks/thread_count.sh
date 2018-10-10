@@ -12,7 +12,7 @@ fi
 csv_file="thread_count.csv"
 echo "numThreads,millis" > "${csv_file}"
 
-for numThreads in {1..32}; do
+for numThreads in {1..64}; do
     for i in {1..4}; do
         millis="$(./scripts/run_MatrixMultiplication.sh -s 2000 -p true -n "${numThreads}")"
         echo "${numThreads},${millis}" >> "${csv_file}"
