@@ -14,6 +14,7 @@
 \usepackage[margin=0.75in]{geometry} % widen page margins
 \usepackage{graphicx} % use external images
 \graphicspath{ {images/} } % folder of images
+\usepackage{caption}
 \setlength\parindent{0pt} % no paragraph indent
 \usepackage{amsmath} % math tools
 \usepackage{enumitem} % tools for convenient list formatting
@@ -27,6 +28,35 @@
     \thispagestyle{empty}
     \setcounter{page}{0}
 \end{titlepage}
+
+\section*{Question 1}
+
+\subsection*{1.6}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{thread_count_plot.png}
+\end{figure}
+
+In the above figure we see that running time drops off sharply (hyperbolic) with the number of
+threads until 8 threads. This is sensible since the machine used has 8 cores and Ahmdal's law
+predicts that when the entire program is parallelizable, each extra core used increments
+the divisor of running time. Once more than 8 threads are used, parallelization is not improved and
+each new thread increases (by a small amount each time) the time spent on thread-switching overhead.\\
+
+This explains why the curve appears to rise slowly and monotonically after 8 threads.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{matrix_size_plot.png}
+\end{figure}
+
+The above graph depicts a function rising at an increasing rate. There is not enough data to model
+the function exactly, though a low-order polynomial like $O(n^3)$ is expected since the matrix
+multplication algorithm used runs in $O(n^3)/k$ where $k$ is the number of cores/threads and is
+constant.
+
+\pagebreak
 
 \section*{Question 2}
 
@@ -75,6 +105,8 @@ same time.
 \end{enumerate}
 
 \subsection*{3.3}
+
+\pagebreak
 
 \section*{Question 4}
 
