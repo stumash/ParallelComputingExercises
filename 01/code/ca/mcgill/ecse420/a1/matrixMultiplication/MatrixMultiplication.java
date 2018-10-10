@@ -36,15 +36,15 @@ public class MatrixMultiplication {
             System.exit(1);
         }
 
-        double[][] a = generateRandomMatrix(MATRIX_SIZE, MATRIX_SIZE);
-        double[][] b = generateRandomMatrix(MATRIX_SIZE, MATRIX_SIZE);
+        double[][] a = Utils.generateRandomMatrix(MATRIX_SIZE, MATRIX_SIZE);
+        double[][] b = Utils.generateRandomMatrix(MATRIX_SIZE, MATRIX_SIZE);
 
         long startTime = System.currentTimeMillis();
 
         if (PARALLELIZE) {
-            parallelMultiplyMatrix(a, b);
+            parallelMatrixMultiply(a, b);
         } else {
-            sequentialMultiplyMatrix(a, b);
+            sequentialMatrixMultiply(a, b);
         }
 
         System.out.println(System.currentTimeMillis() - startTime);
@@ -59,7 +59,7 @@ public class MatrixMultiplication {
      *
      * @pre a and b are nxn square matrices
      * */
-    public static double[][] sequentialMultiplyMatrix(double[][] a, double[][] b) {
+    public static double[][] sequentialMatrixMultiply(double[][] a, double[][] b) {
         int n = a.length; // assume a.length == b.length
         double[][] c = new double[n][n]; // a . b = c
 
@@ -89,30 +89,35 @@ public class MatrixMultiplication {
 
     /**
      * Returns the result of a concurrent matrix multiplication
-     * The two matrices are randomly generated
+     * The two matrices are randomly generated.
+     * Column-wise parallelization of the matrix multiplication
+     *
      * @param a is the first matrix
      * @param b is the second matrix
      * @return the result of the multiplication
      *
      * @pre a and b are nxn square matrices
      * */
-    public static double[][] parallelMultiplyMatrix(double[][] a, double[][] b) {
+    public static double[][] parallelMatrixMultiply(double[][] a, double[][] b) {
         int n = a.length; // assume a.length == b.length
         double[][] c = new double[n][n]; // a . b = c
 
         // Each thread will compute 1 or more columns of product matrix c.
         // The column ranges given to each thread are dependent on NUMBER_THREADS.
 
-        double colsPerThread      = n / (double)NUMBER_THREADS;
-        int lowColsPerThread      = (int)Math.floor(colsPerThread);
-        int highColsPerThread     = (int)Math.ceil(colsPerThread);
+        double colsPerThread  = n / (double)NUMBER_THREADS;
+        int lowColsPerThread  = (int)Math.floor(colsPerThread);
+        int highColsPerThread = (int)Math.ceil(colsPerThread);
+
         double fracColsPerThreadHighToLow = colsPerThread % 1;
+        int numThreadsHighColsPerThread   = (int)(fracColsPerThreadHighToLow * NUMBER_THREADS);
+        int numThreadsLowColsPerThread    = NUMBER_THREADS-1-numThreadsHighColsPerThread;
 
-        int numThreadsHighColsPerThread = (int)(fracColsPerThreadHighToLow * NUMBER_THREADS);
-        int numThreadsLowColsPerThread  = NUMBER_THREADS-1-numThreadsHighColsPerThread;
-
-        // now that we figured out how many threads will get how many columns, we can
-        // create all the PartialMatrixMultiplication tasks and add them to the Executor
+        if (fracColsPerThreadHighToLow == 0.0) {
+            numThreadsHighColsPerThread = NUMBER_THREADS;
+            numThreadsLowColsPerThread  = 0;
+            fracColsPerThreadHighToLow  = 1.0;
+        }
 
         List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
 
@@ -137,30 +142,14 @@ public class MatrixMultiplication {
         ExecutorService threadPool = Executors.newFixedThreadPool(NUMBER_THREADS);
         try {
             threadPool.invokeAll(tasks);
-            threadPool.awaitTermination(10, TimeUnit.MINUTES); // wait a really long time if needed
             threadPool.shutdown();
+            threadPool.awaitTermination(10, TimeUnit.MINUTES);
         } catch(Exception e){
             e.printStackTrace();
             System.exit(1);
         }
 
         return c;
-    }
-
-    /**
-     * Populates a matrix of given size with randomly generated integers between 0-10.
-     * @param numRows number of rows
-     * @param numCols number of cols
-     * @return matrix
-     */
-    private static double[][] generateRandomMatrix (int numRows, int numCols) {
-        double matrix[][] = new double[numRows][numCols];
-        for (int row = 0 ; row < numRows ; row++ ) {
-            for (int col = 0 ; col < numCols ; col++ ) {
-                matrix[row][col] = (double) ((int) (Math.random() * 10.0));
-            }
-        }
-        return matrix;
     }
 
     /**
@@ -255,33 +244,15 @@ public class MatrixMultiplication {
     }
 
     /**
-     * Print a matrix. Useful for testing.
-     */
-    public static void printMatrix(double[][] M) {
-        if (M.length == 0 || M[0].length == 0)
-            return;
-
-        for (double[] row : M) {
-            System.out.print(row[0]);
-            for (int j = 1; j < row.length; j++) {
-                System.out.print(" " + row[j]);
-            }
-            System.out.println();
-        }
-        System.out.println();
-    }
-
-    /**
      * Test the static method sequentialMatrixMultiply(a,b).
      *
      * Multiplies two 2x2 identity matrices and prints the results.
      * Non-exhaustive tests.
      */
-    public static void testSequentialMatrixMultiply() {
-        double[][] A = new double[][] {{1,0},{0,1}};
-        double[][] B = new double[][] {{1,0},{0,1}};
-        double[][] C = sequentialMultiplyMatrix(A, B);
-        printMatrix(C);
+    public static void testSequentialMatrixMultiply(int n) {
+        double[][] A = Utils.identityMatrix(n);
+        double[][] C = sequentialMatrixMultiply(A, A);
+        System.out.println(Utils.verifyIdentityMatrix(C, n));
     }
 
     /**
@@ -290,10 +261,9 @@ public class MatrixMultiplication {
      * Multiplies two 2x2 identity matrices and prints the results.
      * Non-exhaustive tests.
      */
-    public static void testParallelMatrixMultiply() {
-        double[][] A = new double[][] {{1,0},{0,1}};
-        double[][] B = new double[][] {{1,0},{0,1}};
-        double[][] C = parallelMultiplyMatrix(A, B);
-        printMatrix(C);
+    public static void testParallelMatrixMultiply(int n) {
+        double[][] A = Utils.identityMatrix(n);
+        double[][] C = parallelMatrixMultiply(A, A);
+        System.out.println(Utils.verifyIdentityMatrix(C, n));
     }
 }
