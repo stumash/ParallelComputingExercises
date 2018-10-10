@@ -9,7 +9,7 @@ if [ "$?" -ne "0" ]; then
     exit 1
 fi
 
-csv_file="thread_count.csv"
+csv_file="${THIS_DIR}/thread_count.csv"
 echo "numThreads,millis" > "${csv_file}"
 
 for numThreads in {1..64}; do
@@ -23,5 +23,3 @@ if [ "$?" -ne "0" ]; then
     echo "benchmark failed"
     exit 1
 fi
-
-mv "${csv_file}" "${THIS_DIR}"

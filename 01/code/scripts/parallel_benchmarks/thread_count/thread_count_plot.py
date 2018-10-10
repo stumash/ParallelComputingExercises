@@ -14,6 +14,9 @@ csv_path = this_path / "thread_count.csv"
 df = pd.read_csv(str(csv_path))
 df = (df.groupby(['numThreads'], as_index=False)).mean()
 
+# print the numThreads which has the minimum millis
+print(min(df.itertuples(), key=lambda row: row.millis).numThreads)
+
 # plot the graph
 plt.plot(df['numThreads'], df['millis'])
 plt.xlabel('numThreads')
