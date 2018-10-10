@@ -9,3 +9,7 @@ build
 *.log
 *.synctex.gz
 *.fdb_latexmk
+
+# data files
+*.csv
+*.png

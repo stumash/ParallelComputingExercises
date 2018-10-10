@@ -3,9 +3,11 @@
 THIS_DIR="$(dirname "$(readlink -f "$0")")"
 cd "${THIS_DIR}/.."
 
-if [ ! -f "build/ca/mcgill/ecse420/a1/matrixMultplication/MatrixMultplication.class" ]
+if [ ! -f "build/ca/mcgill/ecse420/a1/matrixMultiplication/MatrixMultiplication.class" ]
 then
-    echo "not found: build/ca/mcgill/ecse420/a1/matrixMultplication/MatrixMultplication.class"
+    echo "not found: build/ca/mcgill/ecse420/a1/matrixMultiplication/MatrixMultiplication.class"
+    exit 1
 fi
 
-java ca.mcgill.ecse420.a1.matrixMultplication.MatrixMultplication
+cd "build"
+java ca.mcgill.ecse420.a1.matrixMultiplication.MatrixMultiplication "${@}"
