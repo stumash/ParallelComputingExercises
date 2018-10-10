@@ -51,10 +51,12 @@ This explains why the curve appears to rise slowly and monotonically after 8 thr
     \includegraphics[width=0.5\textwidth]{matrix_size_plot.png}
 \end{figure}
 
-The above graph depicts a function rising at an increasing rate. There is not enough data to model
-the function exactly, though a low-order polynomial like $O(n^3)$ is expected since the matrix
-multplication algorithm used runs in $O(n^3)/k$ where $k$ is the number of cores/threads and is
-constant.
+The above graphs depicts two function that rise at increasing rates. There is not enough data to
+model the functions exactly, but low-order polynomials like $O(n^3)$ are expected since the algorithm
+used for matrix multiplication runs in $O(n^3)$. The parallelized algorithm runs in $O(n^3/k)$ where
+the constant $k$ is the number of threads, so the graphs above are reasonable since the parallelized
+graph looks like it is proportional to the sequential one with a rate of proportionality equal to
+$1/k$.
 
 \pagebreak
 
