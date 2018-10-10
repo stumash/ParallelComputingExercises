@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 THIS_DIR="$(dirname "$(readlink -f "$0")")"
-cd "${THIS_DIR}/../.."
+cd "${THIS_DIR}/../../.."
 
 ./scripts/build_MatrixMultiplication.sh
 if [ "$?" -ne "0" ]; then
