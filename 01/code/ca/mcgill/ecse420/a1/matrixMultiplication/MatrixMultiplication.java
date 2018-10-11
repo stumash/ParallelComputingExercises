@@ -205,7 +205,11 @@ public class MatrixMultiplication {
                     return false;
                 }
                 try {
-                    PARALLELIZE = Boolean.parseBoolean(arg);
+                    if (Boolean.valueOf(arg)) {
+                        PARALLELIZE = true;
+                    } else if (!arg.equals("false")) {
+                        throw new Exception("");
+                    }
                     parallelizeIsSet = true;
                 } catch(Exception e) {
                     System.out.println("ERROR: parallelize must be a boolean");
