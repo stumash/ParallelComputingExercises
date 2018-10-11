@@ -10,7 +10,7 @@ fi
 
 path="ca/mcgill/ecse420/a1/matrixMultiplication/"
 
-rm build/${path}/*
+rm build/${path}/* > /dev/null
 
 javac \
     -d build \

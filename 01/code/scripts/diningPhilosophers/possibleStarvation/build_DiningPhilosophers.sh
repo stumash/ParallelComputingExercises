@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 THIS_DIR="$(dirname "$(readlink -f "$0")")"
-cd "${THIS_DIR}/../.."
+cd "${THIS_DIR}/../../.."
 
 if [ ! -d "build" ]
 then
@@ -10,7 +10,7 @@ fi
 
 path="ca/mcgill/ecse420/a1/diningPhilosophers/possibleStarvation"
 
-rm build/${path}/*
+rm "build/${path}/"* > /dev/null
 
 javac \
     -d "build" \
