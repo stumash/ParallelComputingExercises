@@ -15,12 +15,13 @@ if [ "$?" -ne "0" ]; then
 fi
 
 csv_file="${THIS_DIR}/matrix_size.csv"
-echo "matrixSize,millis" > "${csv_file}"
+echo "matrixSize,millisPar,millisSeq" > "${csv_file}"
 
 for matrixSize in {100,200,500,1000,2000,4000}; do
     for i in {1..4}; do
-        millis="$(./scripts/run_MatrixMultiplication.sh -s "${matrixSize}" -p true -n "${1}")"
-        echo "${matrixSize},${millis}" >> "${csv_file}"
+        millisPar="$(./scripts/run_MatrixMultiplication.sh -s "${matrixSize}" -p true -n "${1}")"
+        millisSeq="$(./scripts/run_MatrixMultiplication.sh -s "${matrixSize}")"
+        echo "${matrixSize},${millisPar},${millisSeq}" >> "${csv_file}"
     done
 done
 
