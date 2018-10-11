@@ -10,7 +10,7 @@ fi
 
 path="ca/mcgill/ecse420/a1/diningPhilosophers/noPossibleStarvation"
 
-rm "build/${path}/"* > /dev/null
+rm "build/${path}/"* 2> /dev/null
 
 javac \
     -d "build" \
