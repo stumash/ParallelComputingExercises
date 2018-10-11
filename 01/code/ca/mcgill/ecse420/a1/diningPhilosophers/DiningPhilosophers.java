@@ -6,9 +6,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class DiningPhilosophers {
-    int numberOfPhilosophers = 5;
-
     public static void main(String[] args) {
+        int numberOfPhilosophers = 5;
         Philosopher[] philosophers = new Philosopher[numberOfPhilosophers];
         Object[] chopsticks = new Object[numberOfPhilosophers];
 
