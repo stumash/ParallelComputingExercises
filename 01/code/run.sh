@@ -15,7 +15,7 @@ then
     echo ""
     echo "examples:"
     echo "  ./run.sh m -s 1000 -p true -n 8 # matrix mult, matrixSize=1000 parallel=true numThreads=8"
-    echo "  ./run.sh dd                     # dining philosophers, can deadlock"
+    echo "  ./run.sh dd                     # dining philosophers, can deadlock and starve"
     echo "  ./run.sh ds                     # dining philosophers, cannot deadlock but can starve"
     echo "  ./run.sh d                      # dining philosophers, cannot deadlock or starvation"
     exit 1
@@ -23,12 +23,12 @@ fi
 
 if [ "${1}" == "m" ]; then
     path="ca/mcgill/ecse420/a1/matrixMultiplication/MatrixMultiplication"
-elif [ "${1}" == "d" ]; then
-    path="ca/mcgill/ecse420/a1/diningPhilosophers/noPossibleStarvation/DiningPhilosophers"
-elif [ "${1}" == "ds" ]; then
-    path="ca/mcgill/ecse420/a1/diningPhilosophers/possibleStarvation/DiningPhilosophers"
 elif [ "${1}" == "dd" ]; then
-    path="ca/mcgill/ecse420/a1/diningPhilosophers/possibleStarvation/DiningPhilosophers"
+    path="ca/mcgill/ecse420/a1/diningPhilosophers/canDeadlock/DiningPhilosophers"
+elif [ "${1}" == "ds" ]; then
+    path="ca/mcgill/ecse420/a1/diningPhilosophers/cannotDeadlock/DiningPhilosophers"
+elif [ "${1}" == "d" ]; then
+    path="ca/mcgill/ecse420/a1/diningPhilosophers/cannotStarve/DiningPhilosophers"
 fi
 
 if [ ! -f "build/${path}.class" ]

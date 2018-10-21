@@ -1,4 +1,4 @@
-package ca.mcgill.ecse420.a1.diningPhilosophers.possibleStarvation;
+package ca.mcgill.ecse420.a1.diningPhilosophers.canDeadlock;
 
 import java.util.concurrent.locks.ReentrantLock;
 

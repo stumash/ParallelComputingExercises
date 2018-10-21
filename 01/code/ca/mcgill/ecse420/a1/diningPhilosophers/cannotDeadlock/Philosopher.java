@@ -1,4 +1,4 @@
-package ca.mcgill.ecse420.a1.diningPhilosophers.noPossibleStarvation;
+package ca.mcgill.ecse420.a1.diningPhilosophers.cannotDeadlock;
 
 import java.util.concurrent.ThreadLocalRandom;
 

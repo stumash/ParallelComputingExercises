@@ -1,9 +1,9 @@
-package ca.mcgill.ecse420.a1.diningPhilosophers.noPossibleStarvation;
+package ca.mcgill.ecse420.a1.diningPhilosophers.cannotStarve;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class DiningPhilosophersWithNoDeadlock {
+public class DiningPhilosophers {
 
     public static void main(String[] args) {
         int numberOfPhilosophers = 10;
