@@ -2,6 +2,13 @@ package ca.mcgill.ecse420.a1.diningPhilosophers.cannotStarve;
 
 import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ * TODO:
+ * Implement fair chopsticks
+ * - remove tryLock in favor of regular, blocking lock acquisition
+ * - implement fairness: longest-waiting philosophers are always next to pick up chopstick
+ */
+
 public class Chopstick {
     private ReentrantLock lock = new ReentrantLock();
     private int id;
