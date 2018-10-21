@@ -1,32 +1,43 @@
 package ca.mcgill.ecse420.a1.diningPhilosophers.canDeadlock;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 public class DiningPhilosophers {
     public static void main(String[] args) {
         int numberOfPhilosophers = 5;
-        Philosopher[] philosophers = new Philosopher[numberOfPhilosophers];
-        Chopstick[] chopsticks = new Chopstick[numberOfPhilosophers];
 
-        ExecutorService executorService = null;
+        Chopstick[] chopsticks = new Chopstick[numberOfPhilosophers];
+        for (int i = 0; i < numberOfPhilosophers; i++) {
+            chopsticks[i] = new Chopstick(i);
+        }
+
+        List<Callable<Object>> philosopherTasks = new ArrayList<Callable<Object>>();
+        for (int i = 0; i < numberOfPhilosophers; i++) {
+            philosopherTasks.add(
+                Executors.callable(
+                    new Philosopher(
+                        i,
+                        chopsticks[i],                           // left Chopstick
+                        chopsticks[(i+1) % numberOfPhilosophers] // right Chopstick
+                    )
+                )
+            );
+        }
 
         try {
-            //      Place the chopstick on table   
-            for (int i = 0; i < numberOfPhilosophers; i++) {
-                chopsticks[i] = new Chopstick(i);
-            }
-            //      Creates thread pool, one for each philosopher
-            executorService = Executors.newFixedThreadPool(numberOfPhilosophers);
+            ExecutorService executorService =
+                Executors.newFixedThreadPool(numberOfPhilosophers);
 
-            //      Populate the philosopher and assign the chopstick on their sides
-            for (int i = 0; i < numberOfPhilosophers; i++) {
-                philosophers[i] = new Philosopher(i, chopsticks[i], chopsticks[(i + 1) % numberOfPhilosophers]);
-                executorService.execute(philosophers[i]);
-            }
-        }finally{
-            //        Threads will stop accepting new tasks
+            executorService.invokeAll(philosopherTasks);
             executorService.shutdown();
+            executorService.awaitTermination(1, TimeUnit.MINUTES);
+        } catch(Exception e){
+            e.printStackTrace();
         }
     }
 }
