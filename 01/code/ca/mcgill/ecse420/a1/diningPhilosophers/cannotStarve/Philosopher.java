@@ -4,8 +4,8 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class Philosopher implements Runnable {
     private final int id;
-    private final Chopstick leftChopstick;
-    private final Chopstick rightChopstick;
+    private final Chopstick firstChopstick;
+    private final Chopstick secondChopstick;
 
     /**
      * @param id Philosopher number
@@ -13,10 +13,10 @@ public class Philosopher implements Runnable {
      * @param chopsticks
      * @param chopsticks2
      */
-    public Philosopher(int id, Chopstick leftChopstick, Chopstick rightChopstick) {
+    public Philosopher(int id, Chopstick firstChopstick, Chopstick secondChopstick) {
         this.id = id;
-        this.leftChopstick = leftChopstick;
-        this.rightChopstick = rightChopstick;
+        this.firstChopstick = firstChopstick;
+        this.secondChopstick = secondChopstick;
     }
 
     public int getId() {
@@ -25,33 +25,24 @@ public class Philosopher implements Runnable {
 
     @Override
     public void run() {
+        String firstChopstickSide  = "left";
+        String secondChopstickSide = "right";
+        if (this.id % 2 == 0) {
+            firstChopstickSide  = "right";
+            secondChopstickSide = "left";
+        }
+
         try {
             while(true) {
-                // Philosopher with even id pick up left first
-                if ((this.id & 1) == 0 ) {
-                    think();
+                think();
 
-                    if (rightChopstick.bePickedUpBy(this, "right")) {
-                        if (leftChopstick.bePickedUpBy(this, "left")) {
-                            eat();
-                            leftChopstick.bePutDownBy(this, "left");
-                        }
-                        // drop rightChopstick even if couldn't get left one. prevents 'hold and wait'
-                        rightChopstick.bePutDownBy(this, "right");
-                    }
-                }
-                // Philosopher with an odd id pick up right first
-                else {
-                    think();
-                    if (leftChopstick.bePickedUpBy(this, "left")) {
-                        if (rightChopstick.bePickedUpBy(this, "right")) {
-                            eat();
-                            rightChopstick.bePutDownBy(this, "right");
-                        }
-                        // drop leftChopstick even if couldn't get right one. prevents 'hold and wait'
-                        leftChopstick.bePutDownBy(this, "left");
-                    }
-                }
+                firstChopstick.bePickedUpBy(this, firstChopstickSide);
+                secondChopstick.bePickedUpBy(this, secondChopstickSide);
+
+                eat();
+
+                firstChopstick.bePutDownBy(this, firstChopstickSide);
+                secondChopstick.bePutDownBy(this, secondChopstickSide);
             }
         } catch (Exception e) {
             e.printStackTrace();
