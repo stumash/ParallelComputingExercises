@@ -4,8 +4,9 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class Philosopher implements Runnable {
     private final int id;
-    private final Chopstick firstChopstick;
-    private final Chopstick secondChopstick;
+    private final boolean leftFirst;
+    private final Chopstick leftChopstick;
+    private final Chopstick rightChopstick;
 
     /**
      * @param id Philosopher number
@@ -13,10 +14,11 @@ public class Philosopher implements Runnable {
      * @param chopsticks
      * @param chopsticks2
      */
-    public Philosopher(int id, Chopstick firstChopstick, Chopstick secondChopstick) {
+    public Philosopher(int id, boolean leftFirst, Chopstick leftChopstick, Chopstick rightChopstick) {
         this.id = id;
-        this.firstChopstick = firstChopstick;
-        this.secondChopstick = secondChopstick;
+        this.leftFirst = leftFirst;
+        this.leftChopstick = leftChopstick;
+        this.rightChopstick = rightChopstick;
     }
 
     public int getId() {
@@ -27,9 +29,13 @@ public class Philosopher implements Runnable {
     public void run() {
         String firstChopstickSide  = "left";
         String secondChopstickSide = "right";
-        if (this.id % 2 == 0) {
+        Chopstick firstChopstick  = this.leftChopstick;
+        Chopstick secondChopstick = this.rightChopstick;
+        if (!this.leftFirst) {
             firstChopstickSide  = "right";
             secondChopstickSide = "left";
+            firstChopstick  = this.rightChopstick;
+            secondChopstick = this.leftChopstick;
         }
 
         try {

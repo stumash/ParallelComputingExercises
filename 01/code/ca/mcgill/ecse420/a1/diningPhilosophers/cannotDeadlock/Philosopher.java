@@ -4,6 +4,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class Philosopher implements Runnable {
     private final int id;
+    private final boolean leftFirst;
     private final Chopstick leftChopstick;
     private final Chopstick rightChopstick;
 
@@ -13,8 +14,9 @@ public class Philosopher implements Runnable {
      * @param chopsticks
      * @param chopsticks2
      */
-    public Philosopher(int id, Chopstick leftChopstick, Chopstick rightChopstick) {
+    public Philosopher(int id, boolean leftFirst, Chopstick leftChopstick, Chopstick rightChopstick) {
         this.id = id;
+        this.leftFirst = leftFirst;
         this.leftChopstick = leftChopstick;
         this.rightChopstick = rightChopstick;
     }
@@ -27,10 +29,8 @@ public class Philosopher implements Runnable {
     public void run() {
         try {
             while(true) {
-                // Philosopher with even id pick up left first
-                if ((this.id & 1) == 0 ) {
+                if (leftFirst) {
                     think();
-
                     if (rightChopstick.bePickedUpBy(this, "right")) {
                         if (leftChopstick.bePickedUpBy(this, "left")) {
                             eat();
@@ -40,7 +40,6 @@ public class Philosopher implements Runnable {
                         rightChopstick.bePutDownBy(this, "right");
                     }
                 }
-                // Philosopher with an odd id pick up right first
                 else {
                     think();
                     if (leftChopstick.bePickedUpBy(this, "left")) {

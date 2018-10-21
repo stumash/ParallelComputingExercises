@@ -29,10 +29,6 @@ public class Philosopher implements Runnable {
             while(true) {
                 think();
 
-                if (this.leftChopstick == null) {
-                    System.out.println("OH fuck left");
-                    System.exit(1);
-                }
                 if (leftChopstick.bePickedUpBy(this, "left")) {
                     if (rightChopstick.bePickedUpBy(this, "right")) {
                         eat();

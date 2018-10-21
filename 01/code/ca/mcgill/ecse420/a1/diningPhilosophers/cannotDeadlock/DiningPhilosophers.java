@@ -22,6 +22,7 @@ public class DiningPhilosophers {
                 Executors.callable(
                     new Philosopher(
                         i,
+                        i % 2 == 0, // pick up left Chopstick first if even-numbered
                         chopsticks[i],                           // left Chopstick
                         chopsticks[(i+1) % numberOfPhilosophers] // right Chopstick
                     )
