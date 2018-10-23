@@ -27,10 +27,7 @@ public class Philosopher implements Runnable {
 
     @Override
     public void run() {
-        // this prevents deadlock by preventing circular wait. For all philosophers
-        // (except at most one), the first chopstick they pick up is also the first
-        // chopstick picked up by whichever philosopher shares that chopstick.
-        Chopstick firstChopstick  = this.leftChopstick;
+        // prevent deadlock by preventing circular wait
         Chopstick secondChopstick = this.rightChopstick;
         String firstChopstickSide  = "left";
         String secondChopstickSide = "right";

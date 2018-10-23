@@ -4,8 +4,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * TODO:
- * Implement fair chopsticks
- * - remove tryLock in favor of regular, blocking lock acquisition
  * - implement fairness: longest-waiting philosophers are always next to pick up chopstick
  */
 
@@ -25,14 +23,10 @@ public class Chopstick {
      *
      * @return true if lock is acquired, else false
      */
-    public boolean bePickedUpBy(Philosopher p, String which) throws InterruptedException {
-        if (lock.tryLock()) {
-            System.out.println("Philosopher "+p.getId()+" picked up "+which+" Chopstick "+id);
-            return true;
-        }
-
-        System.out.println("Philosopher "+p.getId()+" COULD NOT pick up "+which+" Chopstick "+id);
-        return false;
+    public void bePickedUpBy(Philosopher p, String which) throws InterruptedException {
+        System.out.println("Philosopher "+p.getId()+" waiting to pick up "+which+" Chopstick "+id);
+        lock.lock();
+        System.out.println("Philosopher "+p.getId()+" picked up "+which+" Chopstick "+id);
     }
 
     /**
