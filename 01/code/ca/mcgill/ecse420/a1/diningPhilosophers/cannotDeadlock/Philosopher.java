@@ -27,25 +27,31 @@ public class Philosopher implements Runnable {
 
     @Override
     public void run() {
-        boolean ate = true;
+        // this prevents deadlock by preventing circular wait. For all philosophers
+        // (except at most one), the first chopstick they pick up is also the first
+        // chopstick picked up by whichever philosopher shares that chopstick.
+        Chopstick firstChopstick  = this.leftChopstick;
+        Chopstick secondChopstick = this.rightChopstick;
+        String firstChopstickSide  = "left";
+        String secondChopstickSide = "right";
+        if (!this.leftFirst) {
+            firstChopstick  = this.rightChopstick;
+            secondChopstick = this.leftChopstick;
+            firstChopstickSide  = "right";
+            secondChopstickSide = "left";
+        }
 
         try {
             while(true) {
-                // only start thinking AGAIN if you ate, else just continue waiting to eat
-                if (ate) {
-                    think();
-                }
+                think();
 
-                ate = false;
-                if (rightChopstick.bePickedUpBy(this, "right")) {
-                    if (leftChopstick.bePickedUpBy(this, "left")) {
-                        eat();
-                        ate = true;
-                        leftChopstick.bePutDownBy(this, "left");
-                    }
-                    // drop rightChopstick even if couldn't get left one. prevents 'hold and wait'
-                    rightChopstick.bePutDownBy(this, "right");
-                }
+                firstChopstick.bePickedUpBy(this, firstChopstickSide);
+                secondChopstick.bePickedUpBy(this, secondChopstickSide);
+
+                eat();
+
+                secondChopstick.bePutDownBy(this, secondChopstickSide);
+                firstChopstick.bePutDownBy(this, firstChopstickSide);
             }
         } catch (Exception e) {
             e.printStackTrace();
