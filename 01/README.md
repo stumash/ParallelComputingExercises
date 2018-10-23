@@ -26,10 +26,6 @@
 │   ├── images
 │   │   ├── matrix_size_plot.png
 │   │   └── thread_count_plot.png
-│   ├── report.aux
-│   ├── report.fdb_latexmk
-│   ├── report.fls
-│   ├── report.log
 │   ├── report.pdf
 │   └── report.tex
 ├── hw1.pdf
