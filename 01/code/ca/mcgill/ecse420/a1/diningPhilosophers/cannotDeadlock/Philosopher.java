@@ -27,29 +27,24 @@ public class Philosopher implements Runnable {
 
     @Override
     public void run() {
+        boolean ate = true;
+
         try {
             while(true) {
-                if (leftFirst) {
+                // only start thinking AGAIN if you ate, else just continue waiting to eat
+                if (ate) {
                     think();
-                    if (rightChopstick.bePickedUpBy(this, "right")) {
-                        if (leftChopstick.bePickedUpBy(this, "left")) {
-                            eat();
-                            leftChopstick.bePutDownBy(this, "left");
-                        }
-                        // drop rightChopstick even if couldn't get left one. prevents 'hold and wait'
-                        rightChopstick.bePutDownBy(this, "right");
-                    }
                 }
-                else {
-                    think();
+
+                ate = false;
+                if (rightChopstick.bePickedUpBy(this, "right")) {
                     if (leftChopstick.bePickedUpBy(this, "left")) {
-                        if (rightChopstick.bePickedUpBy(this, "right")) {
-                            eat();
-                            rightChopstick.bePutDownBy(this, "right");
-                        }
-                        // drop leftChopstick even if couldn't get right one. prevents 'hold and wait'
+                        eat();
+                        ate = true;
                         leftChopstick.bePutDownBy(this, "left");
                     }
+                    // drop rightChopstick even if couldn't get left one. prevents 'hold and wait'
+                    rightChopstick.bePutDownBy(this, "right");
                 }
             }
         } catch (Exception e) {

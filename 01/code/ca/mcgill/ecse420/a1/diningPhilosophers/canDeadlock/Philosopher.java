@@ -29,13 +29,15 @@ public class Philosopher implements Runnable {
             while(true) {
                 think();
 
-                if (leftChopstick.bePickedUpBy(this, "left")) {
-                    if (rightChopstick.bePickedUpBy(this, "right")) {
-                        eat();
-                        rightChopstick.bePutDownBy(this, "right");
-                        leftChopstick.bePutDownBy(this, "left");
-                    }
-                }
+                // Deadlock is possible because of hold-and-wait + circular dependency.
+                // All philosophers pick up their left chopstick then their right chopstick.
+                leftChopstick.bePickedUpBy(this, "left");
+                rightChopstick.bePickedUpBy(this, "right");
+
+                eat();
+
+                rightChopstick.bePutDownBy(this, "right");
+                leftChopstick.bePutDownBy(this, "left");
             }
         }
         catch (Exception e) {

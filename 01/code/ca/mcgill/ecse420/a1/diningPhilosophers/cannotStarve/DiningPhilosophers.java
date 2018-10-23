@@ -32,6 +32,7 @@ public class DiningPhilosophers {
                 Executors.callable(
                     new Philosopher(
                         i,
+                        i % 2 == 0,
                         chopsticks[first], // first Chopstick
                         chopsticks[second] // second Chopstick
                     )
