@@ -18,23 +18,13 @@ public class DiningPhilosophers {
 
         List<Callable<Object>> philosopherTasks = new ArrayList<Callable<Object>>();
         for (int i = 0; i < numberOfPhilosophers; i++) {
-            int first = i;                             // left Chopstick
-            int second = (i+1) % numberOfPhilosophers; // right Chopstick
-
-            // even-numbered philosopher, pick up chopsticks right-to-left
-            // instead of left-to-right. this prevents deadlock.
-            if (i % 2 == 0) {
-                first = (i+1) % numberOfPhilosophers; // right Chopstick
-                second = i;                           // left Chopstick
-            }
-
             philosopherTasks.add(
                 Executors.callable(
                     new Philosopher(
                         i,
-                        i % 2 == 0,
-                        chopsticks[first], // first Chopstick
-                        chopsticks[second] // second Chopstick
+                        i % 2 == 0, // pick up left Chopstick first if even-numbered
+                        chopsticks[i],                           // first Chopstick
+                        chopsticks[(i+1) % numberOfPhilosophers] // second Chopstick
                     )
                 )
             );

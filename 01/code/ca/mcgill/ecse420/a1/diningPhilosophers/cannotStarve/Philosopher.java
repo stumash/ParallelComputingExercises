@@ -30,13 +30,13 @@ public class Philosopher implements Runnable {
         // prevent deadlock by preventing circular wait
         String firstChopstickSide  = "left";
         String secondChopstickSide = "right";
-        Chopstick firstChopstick  = this.leftChopstick;
-        Chopstick secondChopstick = this.rightChopstick;
-        if (!this.leftFirst) {
+        Chopstick firstChopstick  = leftChopstick;
+        Chopstick secondChopstick = rightChopstick;
+        if (!leftFirst) {
             firstChopstickSide  = "right";
             secondChopstickSide = "left";
-            firstChopstick  = this.rightChopstick;
-            secondChopstick = this.leftChopstick;
+            firstChopstick  = rightChopstick;
+            secondChopstick = leftChopstick;
         }
 
         try {

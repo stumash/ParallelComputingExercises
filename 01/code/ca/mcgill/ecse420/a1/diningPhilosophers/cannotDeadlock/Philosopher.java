@@ -28,6 +28,7 @@ public class Philosopher implements Runnable {
     @Override
     public void run() {
         // prevent deadlock by preventing circular wait
+        Chopstick firstChopstick = this.leftChopstick;
         Chopstick secondChopstick = this.rightChopstick;
         String firstChopstickSide  = "left";
         String secondChopstickSide = "right";

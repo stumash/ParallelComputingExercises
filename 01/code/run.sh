@@ -7,27 +7,27 @@ if [ -z "${1}" ] || \
    [ "${1}" == "--help" ] || \
    [ "${1}" == "-h" ] || \
    [ "${1}" != "m" ] && \
-   [ "${1}" != "dd" ] && \
-   [ "${1}" != "ds" ] && \
-   [ "${1}" != "d" ]
+   [ "${1}" != "dds" ] && \
+   [ "${1}" != "dxs" ] && \
+   [ "${1}" != "dxx" ]
 then
     echo "usage: run <name> <args...>"
     echo ""
     echo "examples:"
     echo "  ./run.sh m -s 1000 -p true -n 8 # matrix mult, matrixSize=1000 parallel=true numThreads=8"
-    echo "  ./run.sh dd                     # dining philosophers, can deadlock and starve"
-    echo "  ./run.sh ds                     # dining philosophers, cannot deadlock but can starve"
-    echo "  ./run.sh d                      # dining philosophers, cannot deadlock or starvation"
+    echo "  ./run.sh dds                    # dining philosophers, can deadlock and starve"
+    echo "  ./run.sh dxs                    # dining philosophers, cannot deadlock but can starve"
+    echo "  ./run.sh dxx                    # dining philosophers, cannot deadlock or starve"
     exit 1
 fi
 
 if [ "${1}" == "m" ]; then
     path="ca/mcgill/ecse420/a1/matrixMultiplication/MatrixMultiplication"
-elif [ "${1}" == "dd" ]; then
+elif [ "${1}" == "dds" ]; then
     path="ca/mcgill/ecse420/a1/diningPhilosophers/canDeadlock/DiningPhilosophers"
-elif [ "${1}" == "ds" ]; then
+elif [ "${1}" == "dxs" ]; then
     path="ca/mcgill/ecse420/a1/diningPhilosophers/cannotDeadlock/DiningPhilosophers"
-elif [ "${1}" == "d" ]; then
+elif [ "${1}" == "dxx" ]; then
     path="ca/mcgill/ecse420/a1/diningPhilosophers/cannotStarve/DiningPhilosophers"
 fi
 
