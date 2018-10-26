@@ -98,16 +98,15 @@ Deadlock and Starvation in the Dining Philosophers Problem.
 
 \subsection*{3.2}
 
-To avoid deadlock in the Dining Philosophers Problem, we had our philosophers follow two rules:
+To avoid deadlock in the Dining Philosophers Problem, we had our philosophers follow one rule: even-numbered philosophers are `lefty' (pick up their left chopstick first) and odd-numbered ones are `righty'. This prevents deadlock by prevent circular wait. By alternating righty and lefty philosophers, philosophers are considered to be grouped into pairs where both members of the pair try to pick up the same chopstick first. Because they share a first chopstick, it is impossible for them to hold the other`s second chopstick while waiting on the first.\\
 
-\begin{enumerate}
-	\item A philosopher takes his two chopsticks only if both chopsticks are not in use. Even if all philosophers are hungry simultaneously, only two philosophers can eat, because philosophers must take both chopsticks at once.
-same time.
-	\item Philosophers on odd numbered take the first left new chopsticks right, while the even-numbered hilosophers take the right chopstick first and chopsticks left. If all philosophers hunger simultaneously, making way for asymmetric solution will prevent all philosophers take the left chopstick simultaneously so that a deadlock condition can be avoided.
-\end{enumerate}
+\textit{Note that the blocking lock acquisition (which doesn't return until the lock can be and is acquired) was used intead of non-blocking lock acquisition (which traditonally returns false if the lock is not acquired).}
 
 \subsection*{3.3}
-We use the concept of altruistic philosopher to avoid starvation.If a philosopher picks up a chopstickt and realise that the other one is not available, the later will release it.In a sense,those who are eating will give priority to the philosopher who are waiting to eat and vice versa.When they are both waiting, they will end up alternating.
+
+To avoid the possibility of starvation, one must guarantee that any philosopher that attempts to acquire a chopstick's lock \textbf{will eventually acquire it}. We provide this guarantee by designing the choptstick acquisition to be `FIFO fair`. That is, when a philosopher attempts to acquire a lock (on a chopstick) and must wait for said lock, the philosopher waits in a FIFO queue. Because the queue is FIFO, and deadlock is already prevented in the same manner as question 3.2, any philosopher that enters the queue will eventually get the chopstick.\\
+
+\textit{Note that we manually implemented the fair chopstick using a monitor with a queue of semaphores. Please have a look at the implementation, as readability was a goal.}
 
 \pagebreak
 
