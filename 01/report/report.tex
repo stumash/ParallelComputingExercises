@@ -31,7 +31,12 @@
 
 \section*{Question 1}
 
-\subsection*{1.6}
+\subsection*{1.2}
+\label{sub:1_2}
+
+Matrix multiplication was parallelized column-wise. That is, given a number $T$ of threads and a size of matrix $N \times N$, the $N$ columns of the matrix are divided up evenly among the $T$ threads so that each thread must only calculate the matrix product for its corresponding columns.
+
+\subsection*{1.6 A}
 
 \begin{figure}[h]
     \centering
@@ -46,6 +51,8 @@ each new thread increases (by a small amount each time) the time spent on thread
 
 This explains why the curve appears to rise slowly and monotonically after 8 threads.
 
+\subsection*{1.6 B}
+
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.5\textwidth]{matrix_size_plot.png}
@@ -56,7 +63,9 @@ model the functions exactly, but low-order polynomials like $O(n^3)$ are expecte
 used for matrix multiplication runs in $O(n^3)$. The parallelized algorithm runs in $O(n^3/k)$ where
 the constant $k$ is the number of threads, so the graphs above are reasonable since the parallelized
 graph looks like it is proportional to the sequential one with a rate of proportionality equal to
-$1/k$.
+$1/k$.\\
+
+Moreover, we see that the two graphs begin to diverge at a matrix size of roughly $1000 \times 1000$. This can be explained by the fact that the thread-switching overhead and the parallelization speedup work against each other; for small matrices ($1000 \times 1000$ and smaller), the parallelization speedup does not exceed the extra thread-switching overhead. However, parallelization speedup more than compensates for the thread-switching overhead for large matrices (it seems for any larger than $1000 \times 1000$).
 
 \pagebreak
 
