@@ -9,6 +9,7 @@ build
 *.log
 *.synctex.gz
 *.fdb_latexmk
+*.pygstyle
 
 # data files
 *.csv
