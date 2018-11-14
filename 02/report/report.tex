@@ -19,6 +19,8 @@
 \usepackage{amsmath} % math tools
 \usepackage{enumitem} % convenient list formatting
 
+\newcommand{\code}[1] { \mintinline{python3}{#1} }
+
 \begin{document}
 
 \begin{titlepage}
@@ -32,6 +34,117 @@
 
 \subsection*{1.2}
 \label{sub:1_2}
+
+Some stuff
+
+\subsection*{1.4}
+\label{sub:1_4}
+
+Some stuff
+
+\subsection*{1.5}
+\label{sub:1_5}
+
+Some stuff
+
+\newpage
+\section*{Question 2}
+\label{sec:question_2}
+
+\subsection*{2.1 - LockOne}
+\label{sub:2_1_lockone}
+
+\textbf{No.} If the shared \code{flag} atomic registers are replaced by regular registers, \code{LockOne} does not still provide mutual exclusion. \textbf{Proof:}
+
+\begin{figure*}[h!]
+    \begin{minipage}{0.5\textwidth}
+        \centering
+        \textbf{Thread 1}
+        \begin{minted}[linenos]{java}
+    public void lock() {
+        int i = ThreadID.get();
+        int j = i - 1;
+        flag[i] = true // only local
+    //
+    //
+    //
+    //
+    //
+    //
+        while (flag[j]) {} // false
+    } // enter critical section
+        \end{minted}
+    \end{minipage}
+    \hspace{.5cm}
+    \begin{minipage}{0.5\textwidth}
+        \centering
+        \textbf{Thread 2}
+        \begin{minted}[linenos]{java}
+    //
+    //
+    //
+    //
+    public void lock() {
+        int i = ThreadID.get();
+        int j = i - 1;
+        flag[i] = true // only local
+        while (flag[j]) {} // false
+    } // enter critical section
+    //
+    //
+        \end{minted}
+    \end{minipage}
+\end{figure*}
+
+The problem is that if we don't use atomic registers, then the writes to \code{flag} are not necessarily shared right away. This means that both threads can write to \code{flag} without the other being able to detect it. Then, both can enter the critical section.
+
+\subsection*{2.2 - LockTwo}
+\label{sub:2_2_locktwo}
+
+\textbf{No}, if shared variable \code{victim} uses a regular register instead of an atomic one \code{LockTwo} does not still provide mutual exclusion, for similar reasons to those of $2.1$. \textbf{Proof:}
+
+\setminted{fontsize=\small}
+\begin{figure*}[h!]
+    \begin{minipage}{0.5\textwidth}
+        \centering
+        \textbf{Thread 1}
+        \begin{minted}[linenos]{java}
+    public void lock() {
+      int i = ThreadID.get();
+      victim = i //only local
+    //
+    //
+    //
+    //
+    //
+      while (victim == i){} //see t2 write
+    } // enter critical section
+        \end{minted}
+    \end{minipage}
+    \hspace{1cm}
+    \begin{minipage}{0.5\textwidth}
+        \centering
+        \textbf{Thread 2}
+        \begin{minted}[linenos]{java}
+    //
+    //
+    //
+    public void lock() {
+      int i = ThreadID.get();
+      victim = i //only local
+      while (victim == i){} //see t1 write
+    } //enter critical section
+    //
+    //
+            \end{minted}
+    \end{minipage}
+\end{figure*}
+
+Since the \code{victim} register is no longer atomic, writes to it by either thread are not only \textit{not shared immediately} but also are \textit{not sequentially consistent}. The Java Concurrency Model does not guarantee sequential consistency without use of synchronization primitives (such as the \code{volatile} keyword, which makes a register atomic).
+
+\newpage
+\section*{Question 3}
+\label{sec:question_3}
 
 Some stuff
 
