@@ -13,6 +13,7 @@
 \usepackage[utf8]{inputenc} % utf-8 file encoding
 \usepackage[margin=0.75in]{geometry} % widen page margins
 \usepackage{minted} % code samples
+\setminted{fontsize=\small}
 \usepackage{graphicx} % use external images
 \graphicspath{ {images/} } % folder of images
 \setlength\parindent{0pt} % no paragraph indent
@@ -35,17 +36,27 @@
 \subsection*{1.2}
 \label{sub:1_2}
 
-Some stuff
+\textbf{Yes,} the Filter Lock allows threads to overtake others an arbitrary number of times. Under the assumption that the thread scheduler is non-deterministic, consider the following scenario:\\
+
+Thread $t_1$ enters the lock and stops just before the \code{while} loop. Thread $t_2$ enters and gets stuck in the \code{while} loop because of $t_1$. $t_3$ then enters \code{lock()} and gets stuck at the while loop too, but in so doing allows $t_1$ or $t_2$ to pass -- whoever is scheduled first! Say $t_2$ is scheduled first and goes on to pass all levels and acquire the Filter Lock. $t_4$ can now come and let $t_3$ acquire the lock, then $t_5$ can let $t_4$, and so on. And when $t_n$ is the one waiting, $t_2$ can come back in and free it and the cycle can continue. In this way, an arbitrary number of threads can overtake $t_1$ in the Filter Lock.
 
 \subsection*{1.4}
 \label{sub:1_4}
 
-Some stuff
+\textbf{No,} the Bakery Lock does not allow other threads to overtake others an arbitrary number of times. The Bakery Lock is a \textit{`First-Come, First-Serve'} (a.k.a. FIFO) lock, so by definition it does not.\\
+
+The Bakery Lock achieves FIFO behaviour because if, for any two threads $A$ and $B$, $A$ completes the \textit{doorway} and acquires a \code{label} before $B$, then $A$'s label is less than $B$'s. Thereofre, $B$ must wait for $A$ to set its \code{flag} to false.\\
+
+So we see that the Bakery Lock is fundamentally more fair than the Filter Lock. Despite the fact that the Filter Lock \textbf{is} starvation-free, a thread waiting at its \code{while} loop can be overtaken an arbitrary number of times before it is scheduled to run again. Conversely, if a thread completes the \textit{doorway} in the Bakery Lock, no threads can overtake it no matter how much time passes before it is scheduled to run again.
 
 \subsection*{1.5}
 \label{sub:1_5}
 
-Some stuff
+If a lock provides mutual exclusion, then only one thread at a time can acquire the lock. Other threads that attempt to acquire the lock while the first thread has already done so will wait at the call to \code{lock()} until the first thread calls \code{unlock()}.\\
+
+To test that a lock behaves in this way, we must allow one thread to acquire a lock and then have another thread attempt to acquire it before the first has unlocked it. Both threads will increment (therefore read and then write) the value of a shared atomic register while they have the lock. After both threads have released the lock, the final value of the shared register must be 2 greater than its initial value, otherwise the lock does not provide mutual exclusion.\\
+
+To guarantee that the second thread attempts to acquire the lock while the first thread still has it, we can have the first thread sleep for a relatively long time after acquiring the lock and reading the register but before writing the register. This will \textit{almost certainly} force the thread scheduler to run the second thread. If the lock does not provide mutual exclusion, then while the first thread is sleeping the second thread will both read and write to the shared register. Finally the first thread will awaken and write to the register, makings the second's write a \textit{lost update}.
 
 \newpage
 \section*{Question 2}
@@ -103,21 +114,20 @@ The problem is that if we don't use atomic registers, then the writes to \code{f
 
 \textbf{No}, if shared variable \code{victim} uses a regular register instead of an atomic one \code{LockTwo} does not still provide mutual exclusion, for similar reasons to those of $2.1$. \textbf{Proof:}
 
-\setminted{fontsize=\small}
 \begin{figure*}[h!]
     \begin{minipage}{0.5\textwidth}
         \centering
         \textbf{Thread 1}
         \begin{minted}[linenos]{java}
     public void lock() {
-      int i = ThreadID.get();
-      victim = i //only local
+        int i = ThreadID.get();
+        victim = i //only local
     //
     //
     //
     //
     //
-      while (victim == i){} //see t2 write
+        while (victim == i){} //see t2 write
     } // enter critical section
         \end{minted}
     \end{minipage}
@@ -130,9 +140,9 @@ The problem is that if we don't use atomic registers, then the writes to \code{f
     //
     //
     public void lock() {
-      int i = ThreadID.get();
-      victim = i //only local
-      while (victim == i){} //see t1 write
+        int i = ThreadID.get();
+        victim = i //only local
+        while (victim == i){} //see t1 write
     } //enter critical section
     //
     //
@@ -140,12 +150,71 @@ The problem is that if we don't use atomic registers, then the writes to \code{f
     \end{minipage}
 \end{figure*}
 
-Since the \code{victim} register is no longer atomic, writes to it by either thread are not only \textit{not shared immediately} but also are \textit{not sequentially consistent}. The Java Concurrency Model does not guarantee sequential consistency without use of synchronization primitives (such as the \code{volatile} keyword, which makes a register atomic).
+Since the \code{victim} register is no longer atomic, writes to it by either thread are not only \textit{not shared immediately} but also are \textit{not sequentially consistent}. The Java Concurrency Model does not guarantee sequential consistency without the use of synchronization primitives (such as the \code{volatile} keyword, which makes a register atomic).
 
 \newpage
 \section*{Question 3}
 \label{sec:question_3}
 
-Some stuff
+\subsection*{3.1 - Mutual Exclusion}
+\label{sub:3_1_mutual_exclusion}
+
+\textbf{Yes,} the \code{LockThree} protocol provides mutual exclusion.\\
+
+Suppose both threads $A$ and $B$ are in the critical section at the same time. This means that
+
+$$
+write_A(\text{turn} = A) \rightarrow write_A(\text{busy} = \text{true}) \rightarrow
+read_A(\text{turn} = B) \rightarrow \text{CS}_A
+$$
+and that
+$$
+write_B(\text{turn} = B) \rightarrow write_B(\text{busy} = \text{true}) \rightarrow
+read_B(\text{turn} = A) \rightarrow \text{CS}_B
+$$
+
+However, in order for the value of \code{turn} to be read as $A$ or $B$, it must be written to as such first. This means
+
+$$
+write_B(\text{turn} = B) \rightarrow read_A(\text{turn} = B)
+$$
+
+and
+
+$$
+write_A(\text{turn} = A) \rightarrow read_B(\text{turn} = A)
+$$
+
+Together, this implies that, without loss of generality
+
+$$
+write_A(\text{turn} = A) \rightarrow write_B(\text{turn} = B) \rightarrow
+read_B(\text{turn} = A) \rightarrow read_A(\text{turn} = B)
+$$
+
+or
+
+$$
+write_A(\text{turn} = A) \rightarrow write_B(\text{turn} = B) \rightarrow
+read_A(\text{turn} = B) \rightarrow read_B(\text{turn} = A)
+$$
+
+which is a contradiction in both cases.
+
+\subsection*{3.2 - Deadlock Freedom}
+\label{sub:3_2_deadlock_freedom}
+
+If thread $t$ is the only thread that will ever acquire this lock, or if it's the last thread to try and acquire the lock and no other thread is currently holding the lock, then \code{LockThree} deadlocks. Our lone thread $t$ will set \code{turn = me}, then \code{busy = true}, and then will wait forever at \code{while (turn == me && busy);}.
+
+\subsection*{3.3 - Starvation Freedom}
+\label{sub:3_3_starvation_freedom}
+
+A lock cannot suffer from the deadlock problem (which \code{LockThree} does) and \textit{also} be starvation-free, so \textbf{no,} the protocol is not starvation-free.
+
+\newpage
+\section*{Question 4}
+\label{sec:question_4}
+
+Some stuff.
 
 \end{document}

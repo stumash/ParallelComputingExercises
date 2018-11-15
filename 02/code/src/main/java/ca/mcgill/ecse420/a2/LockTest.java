@@ -1,6 +1,6 @@
 package ca.mcgill.ecse420.a2;
 
-public class FilterTest {
+public class LockTest {
 
     private static final int WAIT_FOR_RACE_CONDITION = 5000;
     private static final int WAIT_FOR_OTHER_TO_LOCK = 1000;
