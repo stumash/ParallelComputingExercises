@@ -8,15 +8,7 @@ import java.util.HashMap;
  *
  */
 public class ThreadIdUtil {
-	private static HashMap<Long, Integer> threadIdMap;
-	
-	/**
-	 * This serves as a "static constructor". It initializes the threadIdMap HashMap
-	 * when the class is loaded.
-	 */
-	static {
-		ThreadIdUtil.threadIdMap = new HashMap<Long, Integer>();
-	}
+	private static HashMap<Long, Integer> threadIdMap = new HashMap<Long, Integer>();
 	
 	/**
 	 * Register the current thread. A 0-indexed thread ID will be assigned to it.

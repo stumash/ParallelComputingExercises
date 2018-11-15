@@ -1,6 +1,7 @@
 # java-generated
 build
 *.class
+target
 
 # latex-generated
 *.aux
