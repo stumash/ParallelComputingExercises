@@ -38,14 +38,14 @@
 
 \textbf{Yes,} the Filter Lock allows threads to overtake others an arbitrary number of times. Under the assumption that the thread scheduler is non-deterministic, consider the following scenario:\\
 
-Thread $t_1$ enters the lock and stops just before the \code{while} loop. Thread $t_2$ enters and gets stuck in the \code{while} loop because of $t_1$. $t_3$ then enters \code{lock()} and gets stuck at the while loop too, but in so doing allows $t_1$ or $t_2$ to pass -- whoever is scheduled first! Say $t_2$ is scheduled first and goes on to pass all levels and acquire the Filter Lock. $t_4$ can now come and let $t_3$ acquire the lock, then $t_5$ can let $t_4$, and so on. And when $t_n$ is the one waiting, $t_2$ can come back in and free it and the cycle can continue. In this way, an arbitrary number of threads can overtake $t_1$ in the Filter Lock.
+Thread $t_1$ enters the lock and stops just before the \code{while} loop. Thread $t_2$ enters and gets stuck in the \code{while} loop because of $t_1$. $t_3$ then enters \code{lock()} and gets stuck at the while loop too, but in so doing allows $t_1$ or $t_2$ to pass -- whoever is scheduled first! Say $t_2$ is scheduled first and goes on to pass all levels and acquire the Filter Lock and release it. $t_4$ can now do the same and let $t_3$ acquire the lock, then $t_5$ can let $t_4$, and so on. And when $t_n$ is the one waiting, $t_2$ can come back in and free it and the cycle can continue. In this way, an arbitrary number of threads can overtake $t_1$ in the Filter Lock.
 
 \subsection*{1.4}
 \label{sub:1_4}
 
-\textbf{No,} the Bakery Lock does not allow other threads to overtake others an arbitrary number of times. The Bakery Lock is a \textit{`First-Come, First-Serve'} (a.k.a. FIFO) lock, so by definition it does not.\\
+\textbf{No,} the Bakery Lock does not allow threads to overtake others an arbitrary number of times. The Bakery Lock is a \textit{`First-Come, First-Serve'} (a.k.a. FIFO) lock, so by definition it does not.\\
 
-The Bakery Lock achieves FIFO behaviour because if, for any two threads $A$ and $B$, $A$ completes the \textit{doorway} and acquires a \code{label} before $B$, then $A$'s label is less than $B$'s. Therefore, $B$ must wait for $A$ to set its \code{flag} to false.\\
+The Bakery Lock satisfies the requirements of FIFO behaviour because if, for any two threads $A$ and $B$, $A$ completes the \textit{doorway} and acquires a \code{label} before $B$, then $A$'s label is less than $B$'s. Therefore, $B$ must wait for $A$ to set its \code{flag} to false.\\
 
 So we see that the Bakery Lock is fundamentally more fair than the Filter Lock. Despite the fact that the Filter Lock \textbf{is} starvation-free, a thread waiting at its \code{while} loop can be overtaken an arbitrary number of times before it is scheduled to run again. Conversely, if a thread completes the \textit{doorway} in the Bakery Lock, no threads can overtake it no matter how much time passes before it is scheduled to run again.
 
@@ -54,9 +54,9 @@ So we see that the Bakery Lock is fundamentally more fair than the Filter Lock. 
 
 If a lock provides mutual exclusion, then only one thread at a time can acquire the lock. Other threads that attempt to acquire the lock while the first thread has already done so will wait at the call to \code{lock()} until the first thread calls \code{unlock()}.\\
 
-To test that a lock behaves in this way, we must allow one thread to acquire a lock and then have another thread attempt to acquire it before the first has unlocked it. Both threads will increment (therefore read and then write) the value of a shared atomic register while they have the lock. After both threads have released the lock, the final value of the shared register must be 2 greater than its initial value, otherwise the lock does not provide mutual exclusion.\\
+To test that a lock behaves in this way, we must allow one thread to acquire the lock and then have another thread attempt to acquire it before the first has unlocked it. Both threads will increment (therefore read and then write) the value of a shared atomic register while they have the lock. After both threads have released the lock, the final value of the shared register must be 2 greater than its initial value, otherwise the lock does not provide mutual exclusion.\\
 
-To guarantee that the second thread attempts to acquire the lock while the first thread still has it, we can have the first thread sleep for a relatively long time after acquiring the lock and reading the register but before writing the register. This will \textit{almost certainly} force the thread scheduler to run the second thread. If the lock does not provide mutual exclusion, then while the first thread is sleeping the second thread will both read and write to the shared register. Finally the first thread will awaken and write to the register, makings the second's write a \textit{lost update}.
+To guarantee that the second thread attempts to acquire the lock while the first thread still has it, we can have the first thread sleep for a relatively long time after acquiring the lock and reading the register but before writing the register. This will \textit{almost certainly} force the thread scheduler to run the second thread. If the lock does not provide mutual exclusion, then while the first thread is sleeping the second thread will both read and write to the shared register. Finally the first thread will awaken and write to the register, makings the second's write a \textit{lost update}. The \textit{lost update} can be detected by the final value of the register \textbf{not} being 2 greater thant its initial value.
 
 \newpage
 \section*{Question 2}
@@ -394,7 +394,7 @@ We see that since variable \code{x} is not \code{volatile}, the assignment by th
 \subsection*{5.2}
 \label{sub:5_2}
 
-If both \code{v} and \code{x} are volatile, then division by zero is not possible. Any time that \code{v = true}, \code{x = 42} is done first, so inside the \code{if (v == true)}, dividing by \code{x} is dividing by 42 and not dividing by zero.\\
+If both \code{v} and \code{x} are volatile, then division by zero is not possible. Any time that \code{v = true}, it's required that \code{x = 42} is done first, so inside the \code{if (v == true)}, dividing by \code{x} is dividing by 42 and not dividing by zero.\\
 
 If both variables are \textbf{not} volatile, then all bets are off. As we know, sequential consistency is not guaranteed by the JVM when the variables in question are not volatile. Therefore, the exact same trace as in 5.1 is possible and thus so is division by zero.
 
@@ -419,11 +419,11 @@ If read calls overlap with write calls, then, by definition of a regular MRSW re
 \section*{Question 7}
 \label{sec:question_7}
 
-Suppose we had a protocol for binary consensus for n   threads. We could reduce it to a protocol for  threads by simply have  threads take steps and the remaining n   threads hold. We then have a protocol for  threads. Because that is impossible, we have a contradiction. Therefore, binary consensus for n   threads using atomic registers is impossible.
+Suppose we had a protocol for binary consensus for $n$ threads. We could reduce it to a protocol for  two threads by simply having two threads take steps and the remaining $n$ threads hold. We then have a protocol for two threads. Because that is impossible, we have a contradiction. Therefore, binary consensus for $n$ threads using atomic registers is impossible.
 
 \section*{Question 8}
 \label{sec:question_8}
 
-Suppose consensus over k values is possible following some protocol. We could then reduce the consensus protocol to a binary consensus protocol by mapping one value to  and all other values to . This implies that we have binary consensus. But, since binary consensus is impossible, we have a contradiction, therefore consensus over k values is impossible.
+Suppose consensus over $k$ values is possible following some protocol. We could then reduce the consensus protocol to a binary consensus protocol by mapping one value to 0 and all other values to 1. This implies that we have binary consensus. But, since binary consensus is impossible, we have a contradiction, therefore consensus over $k$ values is impossible.
 
 \end{document}
