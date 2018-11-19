@@ -1,0 +1,2 @@
+public class BoundedQueue<T> {
+}
