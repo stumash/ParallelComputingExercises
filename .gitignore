@@ -8,6 +8,7 @@ target
 *.dvi
 *.fls
 *.log
+*.pyg
 *.synctex.gz
 *.fdb_latexmk
 *.pygstyle
