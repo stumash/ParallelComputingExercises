@@ -75,6 +75,11 @@ The difficulty is to define the criteria where the indexes are valid to be read 
 \section*{Question 4}
 
 \subsection*{4.3}
+Given the massive overhead of all the state needed for all the \textbf{tasks} that were run on the threads, the parallel algorithm actually ran slower given the non-infinite number of processors available ($\lceil5 \cdot log_2(2000)\rceil = 55$ threads on 8 virtual processors to be exact).\\
+
+Specifically, the parallel algorithm ran in 10ms while the sequential ran in 2ms. Not very good speedup, to say the least.\\
+
+However, the theoretical speedup is linear so long as the critical path is not the bottleneck.
 
 \subsection*{4.4}
 First, the implementation breaks up the matrix-by-vector multiplication into its various vector-vector dot products. It does this by breaking the matrix into two halves, then halving again and again until it reaches a half that consists of only one row. At this point, it initiates a dot product on that row.\\
@@ -87,6 +92,6 @@ Because $2N \cdot 2N \in \Theta(N^2)$, the implementation achieves work $\Theta(
 
 Also note that the longest possible path through this graph is all the way to bottom of one tree, then another, then back up both of them. That's $\Theta(4 \cdot log_2(N)) \in \Theta(log_2(N))$, so the implementation meets both the \textit{work} and \textit{critical path} requirements.\\
 
-As for the parallelism,
+Since the critical path is $\Theta(log_2(N))$ and the \textit{work} is $\Theta(N^2)$, the parallelism is therefore $\Theta(\frac{N^2}{log_2(N)})$, which is notably much closer to $\Theta(N^2)$ than to $\Theta(N)$. In other words, the parallelism is proportional to $N^2$ which is also what the work is proportional to, so with $\infty$ processors this highly-parallel algorithm would run much faster.
 
 \end{document}
