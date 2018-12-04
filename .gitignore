@@ -18,3 +18,7 @@ _minted-report
 *.csv
 *.png
 !**/images/*.png
+
+# ide-generated
+*.iml
+.idea
