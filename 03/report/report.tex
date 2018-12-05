@@ -19,8 +19,13 @@
 \setlength\parindent{0pt} % no paragraph indent
 \usepackage{amsmath} % math tools
 \usepackage{enumitem} % convenient list formatting
+\usepackage{mathtools}
 
 \newcommand{\code}[1] { \mintinline{python3}{#1} }
+
+\DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
+
+\DeclarePairedDelimiter{\floor}{\lfloor}{\rfloor}
 
 \begin{document}
 
@@ -36,18 +41,55 @@
 \subsection*{1.1}
 \label{sub:1_1}
 
+
+The cache-line size is 4 words. Therefore, the total cache size is the $4 \cdot k$ words, where $k$ is the number of cache-lines in the cache.\\
+
+When all $L$ elements of the array fit in the cache, the average time to access any element of the array will remain constant and small. Therefore, let $L'$ represent the maximum size of the array such that all elements fit in the cache. Note that $L'$ is therefore dependent on that total cache size \textit{but also} on the size of each element of the array. In this example, the size of an element is given as 1 word. Therefore we have
+
+$$
+L' = \frac{4 \cdot k}{\textit{elementsize}} = \frac{4 \cdot k}{1} = 4 \cdot k
+$$
+
+However, we cannot simply say that the space alloted to each element is one word, because the number of words of spacing $s$ between the elements is also a variable. Therefore, the formula becomes
+
+$$
+L' = \ceil[\bigg]{\frac{4 \cdot k}{s + 1}}
+$$
+
+where $s + 1$ is the amount of space `allotted' to each element of the array.\\
+
+We are told in the question that the maximum value that $s$ takes on is $\frac{L}{2}$, which gives us the final formula
+
+$$
+L' = \ceil[\bigg]{\frac{4 \cdot k}{\floor{\frac{L}{2}} + 1}}
+$$
+
 \subsection*{1.2}
 \label{sub:1_2}
+
+In the previous question we discussed how the average time of array access is lowest when the entire array fits in the cache. $t_1$ is therefore the average time to access a location when there is a cache miss, that is, to access a location from main memory.\\
+
+It is, of course, only possible to have cache misses when the size of the array, $L$, is greater than $L'$. In other words, when the entire array does not fit in the cache.
 
 \subsection*{1.3}
 \label{sub:1_3}
 
+The first part of the graph concerns the case then $L < L'$ -- when the entire array fits in the cache. We see that the spacing is irrelevant so long as this is true. When $L < L'$, the average access time of the array remains constant at the cache access time.\\
+
+The second part of the graph concerns the case where $L > L'$, but not so large that every single access is a cache miss. In this case, the average array access time is somewhere in between $t_1$ (cache access time) and $t_2$ (memory access time). We see that as $s$ increases, the average access time incrases. This makes sense because as $s$ increases, the number of elements that fit in the cache decreases and thus the probability that an array access is a cache miss increases.\\
+
+The third part of the graph conerns the case where $L$ is so much larger than $L'$ that every single array access is a cache miss. We see that this occurs when $s$ is large enough that $2 \cdot (s+1)$ is greater than $4 \cdot k$. In other words, when only a single array element can fit in the cache.
+
 \subsection*{1.4}
 \label{sub:1_4}
 
-\subsection*{1.5}
-\label{sub:1_5}
+In the textbook, it was posited that the performance of the Anderson Lock improves when each boolean flag is in its own cache line. It was claimed that the performance improves because \textit{false sharing} is avoided, meaning that when one of the booleans is changed, no other booleans are cache-invalidated for other threads accessing the lock.\\
 
+However, we have now seen that whatever benefits come of avoiding false sharing, they are probably void in comparison to the massive cost of constant cache misses. Therefore, if the padding between each boolean flag in the Anderson Lock is large enough (and its capacity too), then its performance degrades due to cache misses in accessing the boolean flag array.\\
+
+There is likely some sweetspot in the size of $s$, which is dependent on the capacity of the Anderson Lock instance, such that the majority of calls to \textbf{lock( )} do not cache miss but \textit{do} require accessing a unique cache line.
+
+\newpage
 \section*{Question 2}
 \subsection*{2.1}
 See in code
@@ -64,7 +106,7 @@ set.
 When curr.key == key is true, then from the uniqueness of keys that curr.item = item. Hence, item is in the set.
 \end{itemize}
 
-
+\newpage
 \section*{Question 3}
 \subsection*{3.1}
 Working on that
