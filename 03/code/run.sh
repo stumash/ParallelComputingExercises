@@ -4,10 +4,11 @@ THIS_DIR="$(dirname "$(readlink -f "${0}")")"
 cd "${THIS_DIR}"
 
 helpString=$(cat <<HEREDOC
-usage: run.sh matrixmult [options]
+usage: ./run.sh matrixmult [options]
 HEREDOC
 )
 
+# print help if no args or first arg is 'help'
 if [ -z "${1}" ]; then
     echo "${helpString}"
     exit 1
@@ -17,6 +18,7 @@ if [[ "${1}" =~ ^-*h(elp)?$ ]]; then
     exit 0
 fi
 
+# run matrix multiplication benchmark
 classpath="${THIS_DIR}/target/lib/*:."
 cd "target/classes"
 

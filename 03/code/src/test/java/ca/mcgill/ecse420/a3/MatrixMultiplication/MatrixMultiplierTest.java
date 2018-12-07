@@ -9,7 +9,7 @@ import static org.junit.Assert.assertArrayEquals;
 
 public class MatrixMultiplierTest {
 
-    private static final int N = 100;
+    private static final int N = 200;
 
     private static int[][] M;
     private static int[] A;
@@ -24,13 +24,26 @@ public class MatrixMultiplierTest {
     public void testSequentialMultiplier() {
         long startTime = System.currentTimeMillis();
         assertArrayEquals(A, new SequentialMultiplier().multiplyMbyA(M, A));
-        System.out.println("sequential running time: "+(System.currentTimeMillis() - startTime));
+        long duration = System.currentTimeMillis() - startTime;
+
+        System.out.println("sequential multiply         "+N+"x"+N+" by "+N+"x1: "+duration+" (millis)");
     }
 
     @Test
     public void testParallelMultiplier() {
         long startTime = System.currentTimeMillis();
         assertArrayEquals(A, new ParallelMultiplier().multiplyMbyA(M, A));
-        System.out.println("parallel running time:   "+(System.currentTimeMillis() - startTime));
+        long duration = System.currentTimeMillis() - startTime;
+
+        System.out.println("parallel multiply           "+N+"x"+N+" by "+N+"x1: "+duration+" (millis)");
+    }
+
+    @Test
+    public void testParallelMultiplier_Practical() {
+        long startTime = System.currentTimeMillis();
+        assertArrayEquals(A, new ParallelMultiplier_Practical().multiplyMbyA(M, A));
+        long duration = System.currentTimeMillis() - startTime;
+
+        System.out.println("practical parallel multiply "+N+"x"+N+" by "+N+"x1: "+duration+" (millis)");
     }
 }

@@ -21,10 +21,8 @@
 \usepackage{enumitem} % convenient list formatting
 \usepackage{mathtools}
 
-\newcommand{\code}[1] { \mintinline{python3}{#1} }
-
+\newcommand{\code}[1] { \mintinline{java}{#1} }
 \DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
-
 \DeclarePairedDelimiter{\floor}{\lfloor}{\rfloor}
 
 \begin{document}
@@ -87,41 +85,92 @@ In the textbook, it was posited that the performance of the Anderson Lock improv
 
 However, we have now seen that whatever benefits come of avoiding false sharing, they are probably void in comparison to the massive cost of constant cache misses. Therefore, if the padding between each boolean flag in the Anderson Lock is large enough (and its capacity too), then its performance degrades due to cache misses in accessing the boolean flag array.\\
 
-There is likely some sweetspot in the size of $s$, which is dependent on the capacity of the Anderson Lock instance, such that the majority of calls to \textbf{lock( )} do not cache miss but \textit{do} require accessing a unique cache line.
+There is likely some sweetspot in the size of $s$, which is dependent on the capacity of the Anderson Lock instance, such that the majority of calls to \code{lock()} do not cache miss but \textit{do} require accessing a unique cache line.
 
 \newpage
 \section*{Question 2}
 \subsection*{2.1}
-See in code
-\subsection*{2.2}
-The contains method scans the list to find the pair of nodes (pred,curr) reachable from head such that
-pred.next == curr,pred.key < key and curr.key >= key.The traversal uses hand-over-hand locking.
-\begin{itemize}
-\item Item is not in the list \\
-When curr.key == key is false that is curr.key > key. From the sortedness
-invariant of the list, pred.next == curr, and pred.key < key we conclude that item cannot be in the
-set.
+Please see the code in\\
 
- \item Item is in the list \\
-When curr.key == key is true, then from the uniqueness of keys that curr.item = item. Hence, item is in the set.
-\end{itemize}
+\mintinline{bash}{code/src/main/java/ca/mcgill/ecse420/a3/FineGrainedSetMembership/FineGrainedSet.java}
+
+\subsection*{2.2}
+Please see the test code in\\
+
+\mintinline{bash}{code/src/test/java/ca/mcgill/ecse420/a3/FineGrainedSetMembership/FineGrainedSetTest.java}\\
+
+The \code{contains(T item)} implementation is correct because it both has no concurrency bugs and has no logical bugs.\\
+
+The only logical bugs that the \code{contains(T item)} method might have are that it
+
+\begin{enumerate}
+    \item returns \code{true} when the \code{item} \textbf{is not in} the set, or that it
+    \item returns \code{false} when the \code{item} \textbf{is in} the set
+\end{enumerate}
+
+The \code{contains(T item)} method scans the set's internal linked-list until it reaches a node \code{curr} whose
+\begin{enumerate}
+    \item \code{key} (the \code{curr.item.hashCode()}) is not less than the \code{key} being searched for, or
+    \item \code{curr.item.equals(item)}
+\end{enumerate}
+
+The \code{contains(T item)} method then returns the value of \code{curr.item.equals(item)}. This return value can only be \code{true} when \code{curr.key == key && curr.item.equals(item)} and is only \code{false} otherwise. Therefore, the \code{contains(T item)} method only returns \code{true} when \code{curr}'s \code{item} \textbf{is} the \code{item} being searched for, and can only return \code{false} when \code{curr}'s \code{item} \textbf{isn't} the \code{item} being searched for. So \code{contains(T item)} is logically correct.\\
+
+The \code{contains(T item)} method is also free of concurrency bugs.\\
+
+It uses hand-over-hand locking in the same order as the \code{add(T item)} and \code{remove(T item)} methods to prevent any deadlock or data corruption. Deadlock is impossible because locks are acquired according to a global order, preventing circular wait. Corruption is impossible (that is, conflicting calls to \code{add(T item)} or \code{remove(T item)} during the call to \code{contains(T item)}) because to acquire the lock on \code{curr}, all methods must first acquire the lock on \code{pred}, and to release the lock on \code{curr}, all methods must first release the lock on \code{pred}. It is therefore not possible for the \code{contains(T item)} method to be checking the contents of \code{curr} while a call to \code{add(T item)} or \code{remove(T item)} is simultaneously manipulating either \code{pred} or \code{curr}.
 
 \newpage
 \section*{Question 3}
 \subsection*{3.1}
-Working on that
+
+See the code in \mintinline{bash}{BoundedQueue.java}
+
 \subsection*{3.2}
-The difficulty is to define the criteria where the indexes are valid to be read or written. We had to add two more atomic variables: the first representing how many elements can still be inserted; the second represents the valid indices for reading.
+
+See the code in \mintinline{bash}{LockFreeBoundedQueue.java}\\
+
+The difficulty is in defining the criteria for permitting read and writes to the array positions. We had to add two more atomic variables: the first representing how many elements can still be inserted; the second represents the valid indices for reading.
 
 \newpage
 \section*{Question 4}
 
+This question asks us to give an implementation of matrix vector multiplication that is
+
+\begin{itemize}
+    \item highly parallel, having a critical path $\Theta(log(n))$
+    \item efficient, achieving speedup over the naive sequential implementation for $N=2000$ (where the matrix is $N \times N$ and the vector is $N \times 1$)
+\end{itemize}
+
+We have determined these two requirements to be contradictory and mutually exclusive. The implementation requested is not practically possible.\\
+
+Meeting the first requirement requires a divide-and-conquer solution like the one outlined in section $4.4$. At each `divide' step, the running thread must create two threads to wait for. For $N=2000$, this can involve spawning over 8000 such inter-dependent and blocking threads! The number of processors and scheduling efficiency needed to overcome the massive overhead associated with spawning and managing these threads are simply not available on the hardware provided -- and might not be available on anything other than research-grade supercomputer.\\
+
+Nevertheless, we gave our best attempt. We emulated the approach taken by \textit{Herilihy and Shavit} in Chapter $16.1$ of \textit{The Art of Multiprocessor Programming}, wherein they give highly parallel (critical path $\Theta(log(n))$) implementations of matrix-matrix addition and multiplication. Despite using only the best inspiration for our algorithm design, our implementation hung indefinitely for $N > 250$ and even crashed our computer for $N > 1000$! For this reason, the benchmarks discussed in section $4.3$ use $N=200$ instead of $N=2000$.\\
+
+While the performance of the algorithm is terrible, it is the only one that meets requirements of question 4. So, the answers in sections $4.3$ and $4.4$ concern this \textit{highly parallel} algorithm that, while not so in practice, is theoretically efficient given thousand of processors and extremely efficient and scalable thread scheduling.\\
+
+Even though our divide-and-conquer algorithm is technically the right answer, its performance was so terrible that we felt it was necessary to implement a much more practical (though much less parallel) algorithm for comparison. This other algorithm, which can be found in \mintinline{bash}{ParallelMultiplier_Practical.java}, actually achieves speedup over the sequential algorithm for $N > 8000$. In fact, for $N = 25000$ the practical parallel algorithm was twice as fast as the sequential one.
+
+\subsection*{4.1}
+\label{sub:4_1}
+
+See the code in \mintinline{bash}{SequentialMultiplier.java}
+
+\subsection*{4.2}
+\label{sub:4_2}
+
+See the code in \mintinline{bash}{ParallelMultiplier.java}
+
+\newpage
 \subsection*{4.3}
-Given the massive overhead of all the state needed for all the \textbf{tasks} that were run on the threads, the parallel algorithm actually ran slower given the non-infinite number of processors available ($\lceil5 \cdot log_2(2000)\rceil = 55$ threads on 8 virtual processors to be exact).\\
+Because of the massive overhead of spawning and scheduling all the highly-interdependent threads, the parallel algorithm actually ran slower given the non-infinite number of processors available. Using the math from section $4.4$, we can determine that approximately $\lceil4 \cdot log_2(2000)\rceil = 44$ threads on 8 virtual processors were used to run the code. However, 44 represents the minimum number of threads necessary, and due to the randomness of thread scheduling it is possible and even likely that a large multiple of this number of threads were actually running.\\
 
-Specifically, the parallel algorithm ran in 10ms while the sequential ran in 2ms. Not very good speedup, to say the least.\\
+On a matrix $M$ and vector $A$ of size $200 \times 200$ and $200 \times 1$ respecitvely, the parallel algorithmn took 800ms whereas the sequential one took only 1ms.\\
 
-However, the theoretical speedup is linear so long as the critical path is not the bottleneck.
+However, increasing the number of processors would, theoretically, linearly speed up the code until the critical path becomes the bottleneck.\\
+
+If we benchmark the \textit{practical} parallel algorithm against the sequential one, then at $N = 2000$ the sequential algorithm takes 5ms while the practical parallel algorithm takes 14ms. At $N = 25000$, the sequential one takes 201ms while the practical parallel one takes 104ms.
 
 \subsection*{4.4}
 First, the implementation breaks up the matrix-by-vector multiplication into its various vector-vector dot products. It does this by breaking the matrix into two halves, then halving again and again until it reaches a half that consists of only one row. At this point, it initiates a dot product on that row.\\
@@ -134,6 +183,6 @@ Because $2N \cdot 2N \in \Theta(N^2)$, the implementation achieves work $\Theta(
 
 Also note that the longest possible path through this graph is all the way to bottom of one tree, then another, then back up both of them. That's $\Theta(4 \cdot log_2(N)) \in \Theta(log_2(N))$, so the implementation meets both the \textit{work} and \textit{critical path} requirements.\\
 
-Since the critical path is $\Theta(log_2(N))$ and the \textit{work} is $\Theta(N^2)$, the parallelism is therefore $\Theta(\frac{N^2}{log_2(N)})$, which is notably much closer to $\Theta(N^2)$ than to $\Theta(N)$. In other words, the parallelism is proportional to $N^2$ which is also what the work is proportional to, so with $\infty$ processors this highly-parallel algorithm would run much faster.
+Since the critical path is $\Theta(log_2(N))$ and the \textit{work} is $\Theta(N^2)$, the parallelism is therefore $\Theta(\frac{N^2}{log_2(N)})$, which is notably much closer to $\Theta(N^2)$ than to $\Theta(N)$. In other words, the parallelism is nearly proportional to $N^2$ which is also what the work is proportional to, so with $\infty$ processors this highly-parallel algorithm would run much faster.
 
 \end{document}

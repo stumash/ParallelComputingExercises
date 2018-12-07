@@ -12,34 +12,43 @@ public class MultiplierBenchmark {
         final String cli_size = "size";
         final String cli_sequential = "sequential";
         final String cli_parallel = "parallel";
+        final String cli_parallel_practical = "parallel_practical";
         Options cliOptions = new Options();
         cliOptions.addOption(Option
-            .builder(cli_size)
+            .builder()
             .longOpt(cli_size)
-            .argName("N")
-            .desc("use NxN matrix and Nx1 vector for multiplication. N defaults to 2000")
             .hasArg()
+            .argName("N")
             .type(int.class)
+            .desc("Use NxN matrix and Nx1 vector for multiplication. N defaults to 2000.\n"
+                 +"Note that if --parallel is given, N must be less than 200 to avoid out-of-memory errors.")
             .build()
         );
         cliOptions.addOption(Option
-            .builder(cli_sequential)
+            .builder()
             .longOpt(cli_sequential)
-            .desc("do sequential matrix-vector multiplication")
+            .desc("Do sequential matrix-vector multiplication")
             .build()
         );
         cliOptions.addOption(Option
-            .builder(cli_parallel)
+            .builder()
             .longOpt(cli_parallel)
-            .desc("do parallel matrix-vector multiplication")
+            .desc("Do parallel matrix-vector multiplication")
+            .build()
+        );
+        cliOptions.addOption(Option
+            .builder()
+            .longOpt(cli_parallel_practical)
+            .desc("Do parallel matrix-vector multiplication using more practical parallel algorithm")
             .build()
         );
         CommandLine parsedCli = new DefaultParser().parse(cliOptions, args);
 
         boolean doSequential = parsedCli.hasOption(cli_sequential);
         boolean doParallel = parsedCli.hasOption(cli_parallel);
-        if (!(doSequential || doParallel)) {
-            System.out.println("must supply at least one of --sequential or --parallel");
+        boolean doParallelPractical = parsedCli.hasOption(cli_parallel_practical);
+        if (!(doSequential || doParallel || doParallelPractical)) {
+            System.out.println("Must supply at least one of --sequential or --parallel or --parallel_practical");
             System.exit(1);
         }
 
@@ -52,36 +61,33 @@ public class MultiplierBenchmark {
         int[] A = makeRandomVector(N);
 
         if (doSequential) {
-            MatrixMultiplier sequentialMultiplier = new SequentialMultiplier();
             long startTime_sequential = System.currentTimeMillis();
-            int[] product_sequential = sequentialMultiplier.multiplyMbyA(M, A);
+
+            int[] product_sequential = new SequentialMultiplier().multiplyMbyA(M, A);
+
             long endTime_sequential = System.currentTimeMillis();
             long duration_sequential = endTime_sequential - startTime_sequential;
-            System.out.println("sequential multiply "+N+"x"+N+" by "+N+"x1: "+duration_sequential+" (millis)");
-
-            if (N < 20) {
-                printVector(product_sequential);
-            }
+            System.out.println("sequential multiply "+N+"x"+N+" by "+N+"x1:           "+duration_sequential+" (millis)");
         }
 
         if (doParallel) {
-            MatrixMultiplier parallelMultiplier = new ParallelMultiplier();
-            MatrixMultiplier sequentialMultiplier = new SequentialMultiplier();
             long startTime_parallel = System.currentTimeMillis();
-            //int[] product_parllel = parallelMultiplier.multiplyMbyA(M, A);
 
-            // SOMETHING IS WRONG WITH THE PARALLEL IMPLEMENTATION, DESPITE THAT IT IS AN EXACT
-            // COPY OF THE PYTHON VERSION IN THIS FOLDER THAT WORKS. I'M GETTING OUTOFMEMORYERRORS
-            // IN THE JAVA VERSION, THOUGH.
+            int[] product_parallel = new ParallelMultiplier().multiplyMbyA(M, A);
 
-            int[] product_parllel = sequentialMultiplier.multiplyMbyA(M, A);
             long endTime_parallel = System.currentTimeMillis();
             long duration_parallel = endTime_parallel - startTime_parallel;
-            System.out.println("parallel multiply "+N+"x"+N+" by "+N+"x1:   "+duration_parallel+" (millis)");
+            System.out.println("parallel multiply "+N+"x"+N+" by "+N+"x1:             "+duration_parallel+" (millis)");
+        }
 
-            if (N < 20) {
-                printVector(product_parllel);
-            }
+        if (doParallelPractical) {
+            long startTime_parallel_practical = System.currentTimeMillis();
+
+            int[] product_parallel_practical = new ParallelMultiplier_Practical().multiplyMbyA(M, A);
+
+            long endTime_parallel_practical = System.currentTimeMillis();
+            long duration_parallel_practical = endTime_parallel_practical - startTime_parallel_practical;
+            System.out.println("practical parallel multiply "+N+"x"+N+" by "+N+"x1:   "+duration_parallel_practical+" (millis)");
         }
     }
 }

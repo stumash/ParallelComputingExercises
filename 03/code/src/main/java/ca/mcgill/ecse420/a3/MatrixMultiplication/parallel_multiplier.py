@@ -1,5 +1,14 @@
 #!/usr/bin/env python3
 
+# This python implementation is given as a proof of concept of
+# the implementation in ParallelMultiplier.java.
+#
+# The java implementation, due to inefficiencies in thread spawning and
+# scheduling, performs badly. This python3 implementation follows the
+# same exact recursive algorithm, except without multithreading. This
+# code actually runs much faster than the java code despite the fact that
+# it is completely sequential.
+
 import numpy as np
 
 N = 10
@@ -12,7 +21,7 @@ C  = (np.zeros((N,1))).astype(int)
 def main():
     global M,A,C,N
 
-    mult(0,N) # achieved result
+    mult(0,N) # multiply M.A to get C
     print(C)
 
     C_ = M.dot(A) # correct result
