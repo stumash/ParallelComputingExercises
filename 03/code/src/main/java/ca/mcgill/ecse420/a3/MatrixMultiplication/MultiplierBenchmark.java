@@ -13,6 +13,8 @@ public class MultiplierBenchmark {
         final String cli_sequential = "sequential";
         final String cli_parallel = "parallel";
         final String cli_parallel_practical = "parallel_practical";
+        final String cli_help_short = "h";
+        final String cli_help_long = "help";
         Options cliOptions = new Options();
         cliOptions.addOption(Option
             .builder()
@@ -42,12 +44,20 @@ public class MultiplierBenchmark {
             .desc("Do parallel matrix-vector multiplication using more practical parallel algorithm")
             .build()
         );
+        cliOptions.addOption(Option
+            .builder(cli_help_short)
+            .longOpt(cli_help_long)
+            .desc("print help message")
+            .build()
+        );
         CommandLine parsedCli = new DefaultParser().parse(cliOptions, args);
 
+        boolean help = parsedCli.hasOption(cli_help_short) || parsedCli.hasOption(cli_help_long);
         boolean doSequential = parsedCli.hasOption(cli_sequential);
         boolean doParallel = parsedCli.hasOption(cli_parallel);
         boolean doParallelPractical = parsedCli.hasOption(cli_parallel_practical);
-        if (!(doSequential || doParallel || doParallelPractical)) {
+        if (!(doSequential || doParallel || doParallelPractical) || help) {
+            new HelpFormatter().printHelp("run.sh", cliOptions);
             System.out.println("Must supply at least one of --sequential or --parallel or --parallel_practical");
             System.exit(1);
         }
